@@ -1,647 +1,620 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Mail,
   Search,
-  Calendar,
   Clock,
-  ChevronDown,
   Check,
   Users,
   FileText,
   CalendarClock,
-  ClipboardCheck,
   SendHorizonal,
   Target,
+  GitBranch,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  Sparkles,
+  AtSign,
+  X,
+  ChevronRight,
+  DollarSign,
+  MapPin,
 } from 'lucide-react'
+import { useContacts } from '../lib/useContacts'
 import { DUMMY_SEGMENTATIONS } from '../lib/segmentationData'
-import { DUMMY_TEMPLATES, SAMPLE_MERGE_VALUES } from '../lib/templateData'
-import CampaignTypeSelector from '../components/ui/CampaignTypeSelector'
+import { DUMMY_TEMPLATES, SAMPLE_MERGE_VALUES, MERGE_FIELDS } from '../lib/templateData'
 import DripSequenceBuilder from '../components/ui/DripSequenceBuilder'
+import DatePicker from '../components/ui/DatePicker'
+import TimePicker from '../components/ui/TimePicker'
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 0) => ({
-    opacity: 1, y: 0,
-    transition: { duration: 0.5, delay: i * 0.075, ease: [0.25, 0.46, 0.45, 0.94] },
-  }),
+const fadeIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }
+
+function resolveMerge(text) {
+  if (!text) return ''
+  let t = text
+  Object.entries(SAMPLE_MERGE_VALUES).forEach(([k, v]) => {
+    t = t.replace(new RegExp(`\\*?\\[\\[${k}\\]\\]\\*?`, 'g'), v)
+  })
+  return t
 }
-
-const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.075 } },
-}
-
-const SINGLE_STEPS = [
-  { num: 1, label: 'Choose a segmented audience', icon: Users },
-  { num: 2, label: 'Choose an email template', icon: FileText },
-  { num: 3, label: 'Schedule delivery', icon: CalendarClock },
-  { num: 4, label: 'Review and verify merged content', icon: ClipboardCheck },
-  { num: 5, label: 'Press send', icon: SendHorizonal },
-]
-
-const DRIP_STEPS = [
-  { num: 1, label: 'Choose a segmented audience', icon: Users },
-  { num: 2, label: 'Build your email sequence', icon: Target },
-  { num: 3, label: 'Schedule first delivery', icon: CalendarClock },
-  { num: 4, label: 'Review all steps', icon: ClipboardCheck },
-  { num: 5, label: 'Activate sequence', icon: SendHorizonal },
-]
 
 const DEFAULT_DRIP_STEPS = [
-  { id: 'step-1', order: 0, templateId: null, delayAmount: 0, delayUnit: 'days', condition: null },
-  { id: 'step-2', order: 1, templateId: null, delayAmount: 3, delayUnit: 'days', condition: null },
+  { id: 'step-1', order: 0, mode: 'template', templateId: null, customSubject: '', customBody: '', delayAmount: 0, delayUnit: 'days', condition: null },
+  { id: 'step-2', order: 1, mode: 'template', templateId: null, customSubject: '', customBody: '', delayAmount: 3, delayUnit: 'days', condition: null },
 ]
 
-/* ─── Searchable Dropdown ───────────────────────────────────────────────────── */
-function SearchableSelect({ label, required, placeholder, items, value, onChange, renderItem, renderSelected, searchKeys }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const ref = useRef(null)
+/* ─── Step 0: Campaign Type ───────────────────────────────────────────────── */
+function StepType({ value, onChange }) {
+  const types = [
+    { key: 'single', label: 'Single Send', desc: 'One email, one audience, scheduled delivery.', icon: Mail, color: 'blue', tags: ['One-time', 'Scheduled', 'Full tracking'] },
+    { key: 'drip', label: 'Drip Sequence', desc: 'Multi-step emails with delays and conditions.', icon: GitBranch, color: 'purple', tags: ['Multi-step', 'Automated', 'Conditional'] },
+  ]
+  const colors = {
+    blue: { bg: 'bg-blue-50 dark:bg-blue-500/15', icon: 'text-blue-500', border: 'border-blue-400 dark:border-blue-500', ring: 'ring-blue-200 dark:ring-blue-500/20', dot: 'bg-blue-500', tagBg: 'bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400' },
+    purple: { bg: 'bg-purple-50 dark:bg-purple-500/15', icon: 'text-purple-500', border: 'border-purple-400 dark:border-purple-500', ring: 'ring-purple-200 dark:ring-purple-500/20', dot: 'bg-purple-500', tagBg: 'bg-purple-50 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400' },
+  }
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">How do you want to reach your audience?</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Choose the campaign type that fits your goal.</p>
+      </div>
+      <div className="grid grid-cols-2 gap-5">
+        {types.map((t) => {
+          const Icon = t.icon; const c = colors[t.color]; const sel = value === t.key
+          return (
+            <motion.button key={t.key} whileHover={{ y: -3 }} whileTap={{ scale: 0.98 }} onClick={() => onChange(t.key)}
+              className={`relative text-left p-6 rounded-2xl border-2 transition-all cursor-pointer ${sel ? `${c.border} bg-white dark:bg-slate-900 ring-4 ${c.ring}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 hover:shadow-md'}`}>
+              {sel && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className={`absolute top-4 right-4 w-6 h-6 rounded-full ${c.dot} flex items-center justify-center`}><Check size={14} className="text-white" strokeWidth={3} /></motion.div>}
+              <div className={`w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center mb-4`}><Icon size={24} strokeWidth={1.75} className={c.icon} /></div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{t.label}</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">{t.desc}</p>
+              <div className="flex flex-wrap gap-1.5">{t.tags.map((tag) => <span key={tag} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${c.tagBg}`}>{tag}</span>)}</div>
+            </motion.button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
-  useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+/* ─── Apply segment filters to contacts ───────────────────────────────────── */
+function applySegmentFilters(contacts, filters) {
+  if (!filters || filters.length === 0) return contacts
+  return contacts.filter((c) =>
+    filters.every((f) => {
+      const val = c[f.field]
+      const target = f.value
+      switch (f.operator) {
+        case 'equals': return String(val).toLowerCase() === String(target).toLowerCase()
+        case 'not_equals': return String(val).toLowerCase() !== String(target).toLowerCase()
+        case 'contains': return String(val).toLowerCase().includes(String(target).toLowerCase())
+        case 'greater_than': return Number(val) > Number(target)
+        case 'less_than': return Number(val) < Number(target)
+        case 'includes': return String(val).toLowerCase().includes(String(target).toLowerCase())
+        default: return true
+      }
+    })
+  )
+}
 
+/* ─── Audience Preview Drawer ─────────────────────────────────────────────── */
+function AudienceDrawer({ segment, contacts, onClose }) {
+  const [drawerSearch, setDrawerSearch] = useState('')
+  const matched = useMemo(() => applySegmentFilters(contacts, segment?.filters), [contacts, segment])
   const filtered = useMemo(() => {
-    if (!query) return items
-    const q = query.toLowerCase()
-    return items.filter((item) =>
-      searchKeys.some((key) => (item[key] || '').toLowerCase().includes(q))
-    )
-  }, [items, query, searchKeys])
-
-  const selected = items.find((i) => i.id === value)
+    if (!drawerSearch) return matched
+    const q = drawerSearch.toLowerCase()
+    return matched.filter((c) => c.fullName.toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
+  }, [matched, drawerSearch])
 
   return (
-    <div ref={ref} className="relative">
-      {label && (
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
-          {required && <span className="text-primary-500 mr-0.5">*</span>}
-          {label}
-        </label>
-      )}
-      {/* Trigger */}
-      <button
-        type="button"
-        onClick={() => { setOpen(!open); setQuery('') }}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all duration-200 ${
-          open
-            ? 'border-primary-400 ring-2 ring-primary-100 bg-white'
-            : 'border-slate-200 bg-white hover:border-slate-300'
-        }`}
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/30 dark:bg-black/50 z-50"
+        onClick={onClose}
+      />
+      {/* Drawer */}
+      <motion.div
+        initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="fixed top-0 right-0 h-full w-[480px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 z-50 flex flex-col shadow-2xl"
       >
-        {selected ? (
-          <span className="text-sm text-slate-900 dark:text-white">{renderSelected(selected)}</span>
-        ) : (
-          <span className="text-sm text-slate-400 dark:text-slate-500">{placeholder}</span>
-        )}
-        <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-      </button>
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-500/15 flex items-center justify-center">
+                <Users size={16} className="text-primary-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{segment.name}</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500">{segment.description}</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+              <X size={16} />
+            </button>
+          </div>
 
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute z-50 mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-          {/* Search input */}
-          <div className="p-2 border-b border-slate-100 dark:border-slate-800">
-            <div className="relative">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          {/* Filters summary */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {segment.filters.map((f, i) => (
+              <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 dark:bg-primary-500/10 text-[10px] font-semibold text-primary-600 dark:text-primary-400">
+                {f.field} {f.operator.replace('_', ' ')} {f.value}
+              </span>
+            ))}
+          </div>
+
+          {/* Stats + search */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">
+              <Users size={12} className="text-slate-400" />
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 tabular-nums">{matched.length}</span>
+              <span className="text-[10px] text-slate-400">match</span>
+            </div>
+            <div className="relative flex-1">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
-                type="text"
-                autoFocus
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                type="text" placeholder="Search contacts..." value={drawerSearch} onChange={(e) => setDrawerSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500/20 transition-all"
               />
             </div>
           </div>
-          {/* Options */}
-          <div className="max-h-60 overflow-y-auto py-1">
-            {filtered.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-slate-400 dark:text-slate-500">No results found</div>
-            ) : (
-              filtered.map((item) => (
+        </div>
+
+        {/* Contact list */}
+        <div className="flex-1 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="text-center py-12 text-sm text-slate-400">No contacts match this segment.</div>
+          ) : (
+            filtered.slice(0, 100).map((c) => {
+              const initials = `${(c.firstName || '')[0] || ''}${(c.lastName || '')[0] || ''}`.toUpperCase()
+              return (
+                <div key={c.id} className="flex items-center gap-3 px-6 py-3 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-[10px] font-bold">{initials}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{c.fullName}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">{c.email}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="text-right">
+                      <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 tabular-nums">${(c.salary || 0).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400">salary</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] font-medium text-slate-700 dark:text-slate-200 tabular-nums">${(c.planBalance || 0).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400">balance</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
+          {filtered.length > 100 && (
+            <div className="text-center py-4 text-xs text-slate-400">Showing first 100 of {filtered.length} contacts</div>
+          )}
+        </div>
+      </motion.div>
+    </>
+  )
+}
+
+/* ─── Step 1: Audience ────────────────────────────────────────────────────── */
+function StepAudience({ segmentId, setSegmentId }) {
+  const [search, setSearch] = useState('')
+  const [previewSeg, setPreviewSeg] = useState(null)
+  const { contacts } = useContacts()
+  const filtered = useMemo(() => {
+    if (!search) return DUMMY_SEGMENTATIONS
+    const q = search.toLowerCase()
+    return DUMMY_SEGMENTATIONS.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q))
+  }, [search])
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Who should receive this?</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Select a saved audience segment for your campaign.</p>
+      </div>
+      <div className="relative">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <input type="text" placeholder="Search segments..." value={search} onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {filtered.map((seg) => {
+          const sel = segmentId === seg.id
+          return (
+            <motion.div key={seg.id} whileHover={{ y: -2 }}
+              className={`relative text-left rounded-xl border-2 transition-all overflow-hidden ${sel ? 'border-primary-400 dark:border-primary-500 bg-primary-50/50 dark:bg-primary-500/5 ring-2 ring-primary-200 dark:ring-primary-500/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 hover:shadow-sm'}`}>
+              {sel && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center z-10"><Check size={12} className="text-white" strokeWidth={3} /></motion.div>}
+
+              {/* Clickable card body */}
+              <button onClick={() => setSegmentId(seg.id)} className="w-full text-left p-5 cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-500/15 flex items-center justify-center shrink-0"><Users size={18} className="text-primary-500" /></div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{seg.name}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{seg.description}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">
+                    <Users size={12} className="text-slate-400" />
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 tabular-nums">{seg.contactCount}</span>
+                    <span className="text-[10px] text-slate-400">recipients</span>
+                  </div>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${seg.status === 'Active' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'}`}>{seg.status}</span>
+                </div>
+              </button>
+
+              {/* Preview button */}
+              <div className="px-5 pb-4 pt-0">
                 <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => { onChange(item.id); setOpen(false); setQuery('') }}
-                  className={`w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-primary-50 transition-colors ${
-                    item.id === value ? 'bg-primary-50' : ''
-                  }`}
+                  onClick={(e) => { e.stopPropagation(); setPreviewSeg(seg) }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10 hover:bg-primary-100 dark:hover:bg-primary-500/20 transition-colors cursor-pointer"
                 >
-                  {renderItem(item)}
-                  {item.id === value && (
-                    <Check size={16} className="ml-auto text-primary-500 shrink-0" />
-                  )}
+                  <Eye size={12} />
+                  Preview Recipients
                 </button>
-              ))
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Drawer */}
+      <AnimatePresence>
+        {previewSeg && (
+          <AudienceDrawer segment={previewSeg} contacts={contacts} onClose={() => setPreviewSeg(null)} />
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ─── Merge Button ────────────────────────────────────────────────────────── */
+function MergeButton({ onInsert }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button type="button" onClick={() => setOpen(!open)} className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10 rounded-md hover:bg-primary-100 dark:hover:bg-primary-500/20 transition-colors cursor-pointer">
+        <AtSign size={10} /> Insert Field
+      </button>
+      {open && (
+        <div className="absolute z-40 bottom-full mb-1 right-0 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-52 overflow-y-auto py-1">
+          {Object.entries(MERGE_FIELDS).map(([cat, items]) => (
+            <div key={cat}>
+              <div className="px-3 pt-2 pb-1"><span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{cat}</span></div>
+              {items.map((f) => <button key={f.key} type="button" onClick={() => { onInsert(`[[${f.key}]]`); setOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">{f.label}</button>)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─── Step 2: Content (Single) ────────────────────────────────────────────── */
+function StepContentSingle({ templateId, setTemplateId, mode, setMode, customSubject, setCustomSubject, customBody, setCustomBody }) {
+  const [search, setSearch] = useState('')
+  const filtered = useMemo(() => {
+    if (!search) return DUMMY_TEMPLATES
+    const q = search.toLowerCase()
+    return DUMMY_TEMPLATES.filter((t) => t.name.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q))
+  }, [search])
+
+  const tpl = DUMMY_TEMPLATES.find((t) => t.id === templateId)
+  const previewSubject = mode === 'template' ? (tpl?.subject || '') : customSubject
+  const previewBody = mode === 'template' ? (tpl?.body || '') : customBody
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">What do you want to say?</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Pick a template or write a custom email. Preview exactly what recipients will see.</p>
+      </div>
+      <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 w-fit">
+        <button onClick={() => setMode('template')} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${mode === 'template' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}><FileText size={15} /> Use Template</button>
+        <button onClick={() => setMode('custom')} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${mode === 'custom' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}><Sparkles size={15} /> Write Custom</button>
+      </div>
+      <div className="grid grid-cols-2 gap-6">
+        <div className="space-y-4">
+          {mode === 'template' ? (
+            <>
+              <div className="relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input type="text" placeholder="Search templates..." value={search} onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all" />
+              </div>
+              <div className="space-y-2 overflow-y-auto pr-1">
+                {filtered.map((t) => {
+                  const sel = templateId === t.id
+                  return (
+                    <button key={t.id} onClick={() => setTemplateId(t.id)}
+                      className={`w-full text-left p-4 rounded-xl border-2 transition-all cursor-pointer ${sel ? 'border-primary-400 dark:border-primary-500 bg-primary-50/50 dark:bg-primary-500/5 ring-1 ring-primary-200 dark:ring-primary-500/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${sel ? 'bg-primary-100 dark:bg-primary-500/20' : 'bg-slate-100 dark:bg-slate-800'}`}><Mail size={16} className={sel ? 'text-primary-500' : 'text-slate-400'} /></div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-sm font-medium truncate ${sel ? 'text-primary-700 dark:text-primary-400' : 'text-slate-900 dark:text-white'}`}>{t.name}</p>
+                          <p className="text-xs text-slate-400 truncate">{t.subject}</p>
+                        </div>
+                        {sel && <Check size={16} className="text-primary-500 shrink-0" />}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Subject Line</label>
+                  <MergeButton onInsert={(f) => setCustomSubject(customSubject + f)} />
+                </div>
+                <input type="text" placeholder="e.g. Hi [[Contact-FirstName]], let's talk about your 401(k)" value={customSubject} onChange={(e) => setCustomSubject(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Email Body</label>
+                  <MergeButton onInsert={(f) => setCustomBody(customBody + f)} />
+                </div>
+                <textarea rows={14} placeholder={"Hi [[Contact-FirstName]],\n\nI wanted to reach out regarding your [[Account-PlanName]]...\n\nBest,\n[[User-Signature]]"} value={customBody} onChange={(e) => setCustomBody(e.target.value)}
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all resize-none font-mono text-[13px] leading-relaxed" />
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="sticky top-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Eye size={14} className="text-slate-400" />
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Recipient Preview</span>
+            <span className="text-[10px] text-slate-300 dark:text-slate-600">(sample data)</span>
+          </div>
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
+            {(previewSubject || previewBody) ? (
+              <>
+                <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 space-y-1.5">
+                  <div className="flex items-center gap-2"><span className="text-[10px] font-semibold text-slate-400 w-10">From</span><span className="text-xs text-slate-700 dark:text-slate-200">Jane Smith &lt;jane.smith@viserly.com&gt;</span></div>
+                  <div className="flex items-center gap-2"><span className="text-[10px] font-semibold text-slate-400 w-10">To</span><span className="text-xs text-slate-700 dark:text-slate-200">John Doe &lt;john.doe@example.com&gt;</span></div>
+                  <div className="flex items-center gap-2"><span className="text-[10px] font-semibold text-slate-400 w-10">Subj</span><span className="text-xs font-medium text-slate-900 dark:text-white">{resolveMerge(previewSubject) || 'No subject'}</span></div>
+                </div>
+                <div className="px-5 py-4 max-h-[380px] overflow-y-auto"><div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{resolveMerge(previewBody) || 'No content'}</div></div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-3"><Mail size={20} className="text-slate-400" /></div>
+                <p className="text-sm text-slate-400">Select a template or start writing</p>
+                <p className="text-xs text-slate-300 dark:text-slate-600 mt-1">Your email preview will appear here</p>
+              </div>
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
 
-/* ─── Step Content Components ───────────────────────────────────────────────── */
-
-function StepSegmentation({ segmentId, setSegmentId }) {
+/* ─── Step 3: Schedule ────────────────────────────────────────────────────── */
+function StepSchedule({ date, setDate, time, setTime }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
-      <h3 className="text-lg font-bold text-slate-900 mb-1">Select Your Segmentation</h3>
-      <p className="text-sm text-slate-400 mb-6">
-        Pick the saved segment that should receive this campaign.
-      </p>
-      <SearchableSelect
-        label="Segmentation"
-        required
-        placeholder="Search segmentations..."
-        items={DUMMY_SEGMENTATIONS}
-        value={segmentId}
-        onChange={setSegmentId}
-        searchKeys={['name', 'description']}
-        renderSelected={(s) => s.name}
-        renderItem={(s) => (
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center shrink-0">
-              <Target size={16} className="text-primary-500" />
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">When should it send?</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Set the date and time for delivery.</p>
+      </div>
+      <div className="max-w-lg">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
+              <DatePicker value={date} onChange={setDate} placeholder="Pick a date" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">{s.name}</p>
-              <p className="text-xs text-slate-400 truncate">{s.contactCount} contacts · {s.status}</p>
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">Time</label>
+              <TimePicker value={time} onChange={setTime} placeholder="Pick a time" />
             </div>
           </div>
-        )}
-      />
-      {segmentId && (
-        <div className="mt-4 p-4 rounded-xl bg-primary-50/50 border border-primary-100">
-          {(() => {
-            const seg = DUMMY_SEGMENTATIONS.find((s) => s.id === segmentId)
-            return (
+          {date && (
+            <div className="p-4 rounded-xl bg-primary-50/50 dark:bg-primary-500/5 border border-primary-100 dark:border-primary-500/20">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
-                  <Users size={18} className="text-primary-600" />
-                </div>
+                <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center"><CalendarClock size={18} className="text-primary-600 dark:text-primary-400" /></div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{seg.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{seg.contactCount} recipients · {seg.description}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{new Date(date + 'T' + (time || '09:00')).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{time ? new Date(date + 'T' + time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'Time not set'}</p>
                 </div>
               </div>
-            )
-          })()}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function StepTemplate({ templateId, setTemplateId }) {
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
-      <h3 className="text-lg font-bold text-slate-900 mb-1">Select Email Template</h3>
-      <p className="text-sm text-slate-400 mb-6">
-        Choose the template content that will be merged for each recipient.
-      </p>
-      <SearchableSelect
-        label="Email Template"
-        required
-        placeholder="Search templates..."
-        items={DUMMY_TEMPLATES}
-        value={templateId}
-        onChange={setTemplateId}
-        searchKeys={['name', 'subject']}
-        renderSelected={(t) => t.name}
-        renderItem={(t) => (
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-              <Mail size={16} className="text-blue-500" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">{t.name}</p>
-              <p className="text-xs text-slate-400 truncate">Email Template</p>
-            </div>
-          </div>
-        )}
-      />
-      {templateId && (
-        <div className="mt-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100">
-          {(() => {
-            const tpl = DUMMY_TEMPLATES.find((t) => t.id === templateId)
-            return (
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <FileText size={18} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{tpl.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Subject: {tpl.subject.replace(/\*?\[\[.*?\]\]\*?/g, '{{merge}}')}</p>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function StepSchedule({ date, setDate, time, setTime, delayCalc, setDelayCalc }) {
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
-      <h3 className="text-lg font-bold text-slate-900 mb-1">Schedule Delivery</h3>
-      <p className="text-sm text-slate-400 mb-6">
-        Set the send time and optionally defer audience expansion until 24 hours before send.
-      </p>
-
-      <div className="mb-6">
-        <p className="text-sm font-semibold text-slate-700 mb-3">Scheduled Delivery Time</p>
-        <div className="grid grid-cols-2 gap-4 max-w-md">
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">Date</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-              />
-              <Calendar size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">Time</label>
-            <div className="relative">
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
-              />
-              <Clock size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Delay segmentation toggle */}
-      <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60">
-        <div className="flex items-start gap-3">
-          <button
-            type="button"
-            onClick={() => setDelayCalc(!delayCalc)}
-            className={`mt-0.5 w-10 h-6 rounded-full transition-colors duration-200 flex items-center shrink-0 ${
-              delayCalc ? 'bg-primary-500' : 'bg-slate-300'
-            }`}
-          >
-            <span
-              className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
-                delayCalc ? 'translate-x-5' : 'translate-x-1'
-              }`}
-            />
-          </button>
-          <div>
-            <p className="text-sm font-semibold text-slate-700">Delay segmentation calculation</p>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              When enabled, campaign members are calculated 24 hours before send instead of immediately.
-              Use this for future sends (for example, holiday campaigns) when the segment should keep growing over time.
-            </p>
-          </div>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function StepReview({ segmentId, templateId, date, time, delayCalc }) {
+/* ─── Step 4: Review & Send ───────────────────────────────────────────────── */
+function StepReviewSend({ campaignType, segmentId, templateId, mode, customSubject, customBody, dripSteps, date, time, onSend, sending }) {
   const seg = DUMMY_SEGMENTATIONS.find((s) => s.id === segmentId)
   const tpl = DUMMY_TEMPLATES.find((t) => t.id === templateId)
-
-  // Merge template body with sample values for preview
-  const mergedBody = useMemo(() => {
-    if (!tpl) return ''
-    let text = tpl.body
-    Object.entries(SAMPLE_MERGE_VALUES).forEach(([key, val]) => {
-      text = text.replace(new RegExp(`\\*?\\[\\[${key}\\]\\]\\*?`, 'g'), val)
-    })
-    return text
-  }, [tpl])
-
-  const mergedSubject = useMemo(() => {
-    if (!tpl) return ''
-    let text = tpl.subject
-    Object.entries(SAMPLE_MERGE_VALUES).forEach(([key, val]) => {
-      text = text.replace(new RegExp(`\\*?\\[\\[${key}\\]\\]\\*?`, 'g'), val)
-    })
-    return text
-  }, [tpl])
+  const previewSubject = mode === 'template' ? (tpl?.subject || '') : customSubject
+  const previewBody = mode === 'template' ? (tpl?.body || '') : customBody
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
-      <h3 className="text-lg font-bold text-slate-900 mb-1">Review Campaign</h3>
-      <p className="text-sm text-slate-400 mb-6">
-        Verify that everything looks correct before sending.
-      </p>
-
-      {/* Summary grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Audience</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{seg?.name || '—'}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{seg ? `${seg.contactCount} recipients` : ''}</p>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Template</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{tpl?.name || '—'}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Email Template</p>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Scheduled</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-            {date ? new Date(date + 'T' + (time || '00:00')).toLocaleString('en-US', {
-              weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
-              hour: 'numeric', minute: '2-digit',
-            }) : 'Not set'}
-          </p>
-        </div>
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Delay Calculation</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white">{delayCalc ? 'Enabled' : 'Disabled'}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{delayCalc ? 'Calculated 24h before send' : 'Calculated immediately'}</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Review & Launch</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Everything looks good? Hit send to launch your campaign.</p>
       </div>
-
-      {/* Email preview */}
-      {tpl && (
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { icon: Users, color: 'primary', label: 'Audience', value: seg?.name || '—', sub: `${seg?.contactCount || 0} recipients` },
+          { icon: Mail, color: 'blue', label: 'Content', value: campaignType === 'drip' ? `${dripSteps.length}-step sequence` : (mode === 'template' ? (tpl?.name || '—') : 'Custom Email'), sub: campaignType === 'drip' ? 'Drip sequence' : 'Single send' },
+          { icon: CalendarClock, color: 'amber', label: 'Schedule', value: date ? new Date(date + 'T' + (time || '09:00')).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set', sub: time ? new Date(date + 'T' + time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '' },
+        ].map((c) => {
+          const Icon = c.icon
+          const bgMap = { primary: 'bg-primary-50 dark:bg-primary-500/15', blue: 'bg-blue-50 dark:bg-blue-500/15', amber: 'bg-amber-50 dark:bg-amber-500/15' }
+          const iconMap = { primary: 'text-primary-500', blue: 'text-blue-500', amber: 'text-amber-500' }
+          return (
+            <div key={c.label} className="p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`w-8 h-8 rounded-lg ${bgMap[c.color]} flex items-center justify-center`}><Icon size={15} className={iconMap[c.color]} /></div>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{c.label}</span>
+              </div>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">{c.value}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{c.sub}</p>
+            </div>
+          )
+        })}
+      </div>
+      {campaignType === 'single' && (previewSubject || previewBody) && (
         <div>
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Email Preview (Sample Merge)</p>
-          <div className="rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 dark:border-slate-700">
-              <p className="text-xs text-slate-400 dark:text-slate-500">Subject</p>
-              <p className="text-sm font-medium text-slate-900">{mergedSubject}</p>
-            </div>
-            <div className="p-5 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-              {mergedBody}
-            </div>
+          <div className="flex items-center gap-2 mb-3"><Eye size={14} className="text-slate-400" /><span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Email Preview</span></div>
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80"><p className="text-xs font-medium text-slate-900 dark:text-white">Subject: {resolveMerge(previewSubject)}</p></div>
+            <div className="px-5 py-4 max-h-48 overflow-y-auto"><div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{resolveMerge(previewBody)}</div></div>
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function StepSend({ onSend, sending }) {
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-5">
-        <SendHorizonal size={28} className="text-emerald-500" />
+      {campaignType === 'drip' && (
+        <div className="space-y-2">
+          {dripSteps.map((s, i) => {
+            const t = DUMMY_TEMPLATES.find((t) => t.id === s.templateId)
+            return (
+              <div key={s.id} className="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
+                <div className="w-8 h-8 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{s.mode === 'custom' ? (s.customSubject || 'Custom email') : (t?.name || 'No template')}</p>
+                  <p className="text-xs text-slate-400">{i === 0 ? 'Sends immediately' : `${s.delayAmount} ${s.delayUnit} after previous`}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <div className="flex justify-center pt-4">
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onSend} disabled={sending}
+          className="inline-flex items-center gap-2.5 px-10 py-3.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold text-sm shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all disabled:opacity-50 cursor-pointer">
+          <SendHorizonal size={18} />
+          {sending ? 'Launching...' : 'Launch Campaign'}
+        </motion.button>
       </div>
-      <h3 className="text-lg font-bold text-slate-900 mb-2">Ready to Send</h3>
-      <p className="text-sm text-slate-400 dark:text-slate-500 max-w-md mx-auto mb-8">
-        Your campaign is configured and ready. Once you press send, the emails will be queued
-        for delivery at the scheduled time.
-      </p>
-      <button
-        type="button"
-        onClick={onSend}
-        disabled={sending}
-        className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-primary-500 dark:bg-primary-600 text-white font-semibold text-sm hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50"
-      >
-        <SendHorizonal size={16} />
-        {sending ? 'Sending...' : 'Send Campaign'}
-      </button>
     </div>
   )
 }
 
-/* ─── Main Page ─────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+const STEP_LABELS = ['Type', 'Audience', 'Content', 'Schedule', 'Review']
 
 export default function CreateCampaign() {
   const navigate = useNavigate()
-  const [campaignType, setCampaignType] = useState(null) // null | 'single' | 'drip'
-  const [step, setStep] = useState(1)
+  const [campaignType, setCampaignType] = useState(null)
+  const [step, setStep] = useState(0)
   const [segmentId, setSegmentId] = useState(null)
   const [templateId, setTemplateId] = useState(null)
+  const [contentMode, setContentMode] = useState('template')
+  const [customSubject, setCustomSubject] = useState('')
+  const [customBody, setCustomBody] = useState('')
   const [dripSteps, setDripSteps] = useState(DEFAULT_DRIP_STEPS)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [delayCalc, setDelayCalc] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
-  const STEPS = campaignType === 'drip' ? DRIP_STEPS : SINGLE_STEPS
-
   const canAdvance = () => {
+    if (step === 0) return campaignType !== null
     if (step === 1) return segmentId !== null
     if (step === 2) {
-      if (campaignType === 'drip') return dripSteps.length >= 2 && dripSteps.every((s) => s.templateId !== null)
-      return templateId !== null
+      if (campaignType === 'drip') return dripSteps.length >= 2
+      return contentMode === 'custom' ? !!(customSubject && customBody) : templateId !== null
     }
     if (step === 3) return date !== ''
     return true
   }
 
-  const handleSend = () => {
-    setSending(true)
-    setTimeout(() => {
-      setSending(false)
-      setSent(true)
-    }, 1500)
-  }
+  const handleSend = () => { setSending(true); setTimeout(() => { setSending(false); setSent(true) }, 1500) }
 
   if (sent) {
     return (
-      <div className="p-8 max-w-[1000px] mx-auto">
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-5">
-            <Check size={32} className="text-emerald-500" />
+      <div className="p-8 mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
+          <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center mx-auto mb-6"><Check size={36} className="text-emerald-500" /></div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Campaign Launched!</h2>
+          <p className="text-sm text-slate-400 max-w-md mb-8">Your campaign has been queued and will be sent at the scheduled time.</p>
+          <div className="flex items-center gap-3 justify-center">
+            <button onClick={() => navigate('/campaigns')} className="px-6 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-colors cursor-pointer">View Campaigns</button>
+            <button onClick={() => { setCampaignType(null); setStep(0); setSegmentId(null); setTemplateId(null); setContentMode('template'); setCustomSubject(''); setCustomBody(''); setDripSteps(DEFAULT_DRIP_STEPS); setDate(''); setTime(''); setSent(false) }}
+              className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">Create Another</button>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Campaign Scheduled!</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 max-w-md mb-8">
-            Your campaign has been queued and will be sent at the scheduled time.
-            You can track its progress in Campaigns.
-          </p>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/campaigns')}
-              className="px-5 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 transition-colors"
-            >
-              View Campaigns
-            </button>
-            <button
-              onClick={() => {
-                setCampaignType(null)
-                setStep(1)
-                setSegmentId(null)
-                setTemplateId(null)
-                setDripSteps(DEFAULT_DRIP_STEPS)
-                setDate('')
-                setTime('')
-                setDelayCalc(false)
-                setSent(false)
-              }}
-              className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              Create Another
-            </button>
-          </div>
-        </div>
+        </motion.div>
       </div>
     )
   }
 
   return (
-    <motion.div className="p-8 max-w-[1000px] mx-auto space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
-      {/* Hero header */}
-      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-100 via-primary-50 to-white dark:from-primary-500/10 dark:via-primary-500/5 dark:to-slate-900 border border-primary-100/60 dark:border-slate-800 px-8 py-10 text-center">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.08),transparent_50%)]" />
-        <div className="relative">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-primary-200/40 text-[11px] font-semibold text-primary-600 uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-400" />
-            Campaign Orchestration
-          </div>
-          <div className="w-14 h-14 rounded-2xl bg-white/80 border border-slate-200/60 shadow-sm flex items-center justify-center mx-auto mb-4">
-            <Mail size={28} strokeWidth={1.5} className="text-slate-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">
-            {campaignType ? (campaignType === 'drip' ? 'Build a Drip Sequence' : 'Schedule a Campaign in 5 Easy Steps') : 'Create a Campaign'}
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
-            {campaignType ? 'Build the audience, pick templates, schedule delivery, and launch with confidence.' : 'Choose how you want to reach your audience.'}
-          </p>
-        </div>
-      </motion.div>
+    <motion.div className="p-8 mx-auto space-y-8" initial="hidden" animate="visible" variants={fadeIn}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <button onClick={() => step === 0 ? navigate('/campaigns') : setStep(step - 1)} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+          <ArrowLeft size={16} />{step === 0 ? 'Campaigns' : 'Back'}
+        </button>
+        <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Create Campaign</h1>
+        <div className="w-20" />
+      </div>
 
-      {/* Type Selector (before wizard) */}
-      {!campaignType && (
-        <div className="space-y-6">
-          <CampaignTypeSelector value={campaignType} onChange={setCampaignType} />
-          <div className="flex justify-center">
-            <button
-              disabled={!campaignType}
-              onClick={() => setStep(1)}
-              className="px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* How It Works + Step content (shown after type selection) */}
-      {campaignType && <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-base font-bold text-slate-900">How It Works</h3>
-          <span className="text-xs font-semibold text-primary-500 bg-primary-50 px-2.5 py-1 rounded-full">
-            5 steps
-          </span>
-        </div>
-        <p className="text-sm text-slate-400 mb-5">Follow this flow to prepare and send your communication.</p>
-
-        <div className="space-y-2">
-          {STEPS.map((s) => {
-            const isActive = s.num === step
-            const isComplete = s.num < step
-            const Icon = s.icon
-            return (
-              <button
-                key={s.num}
-                type="button"
-                onClick={() => {
-                  // Only allow navigating to completed steps or current step
-                  if (s.num <= step) setStep(s.num)
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all duration-200 ${
-                  isActive
-                    ? 'border-primary-300 bg-primary-50/50 shadow-sm'
-                    : isComplete
-                    ? 'border-slate-200/60 bg-white hover:bg-slate-50 cursor-pointer'
-                    : 'border-slate-100 bg-slate-50/50 opacity-60 cursor-default'
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                    isActive
-                      ? 'bg-primary-500 dark:bg-primary-600 text-white'
-                      : isComplete
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-slate-200 text-slate-500'
-                  }`}
-                >
-                  {isComplete ? <Check size={14} /> : s.num}
-                </div>
-                <span className={`text-sm font-medium ${isActive ? 'text-slate-900' : isComplete ? 'text-slate-700' : 'text-slate-400'}`}>
-                  {s.label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </div>}
-
-      {/* Active step content */}
-      {campaignType && step === 1 && <StepSegmentation segmentId={segmentId} setSegmentId={setSegmentId} />}
-      {campaignType && step === 2 && campaignType === 'single' && <StepTemplate templateId={templateId} setTemplateId={setTemplateId} />}
-      {campaignType && step === 2 && campaignType === 'drip' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
-          <DripSequenceBuilder steps={dripSteps} onChange={setDripSteps} />
-        </div>
-      )}
-      {campaignType && step === 3 && <StepSchedule date={date} setDate={setDate} time={time} setTime={setTime} delayCalc={delayCalc} setDelayCalc={setDelayCalc} />}
-      {campaignType && step === 4 && campaignType === 'single' && <StepReview segmentId={segmentId} templateId={templateId} date={date} time={time} delayCalc={delayCalc} />}
-      {campaignType && step === 4 && campaignType === 'drip' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 space-y-4">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">Sequence Summary</h3>
-          <p className="text-sm text-slate-400 dark:text-slate-500">Review your {dripSteps.length}-step drip sequence before activating.</p>
-          {dripSteps.map((s, i) => {
-            const tpl = DUMMY_TEMPLATES.find((t) => t.id === s.templateId)
-            return (
-              <div key={s.id} className="flex items-center gap-4 py-3 px-4 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/30">
-                <div className="w-8 h-8 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{i + 1}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{tpl?.name || 'No template selected'}</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
-                    {i === 0 ? 'Sends immediately' : `${s.delayAmount} ${s.delayUnit} after previous`}
-                    {s.condition ? ` · ${s.condition.type.replace(/_/g, ' ')}` : ''}
-                  </p>
-                </div>
+      {/* Progress bar */}
+      <div className="flex items-center gap-1">
+        {STEP_LABELS.map((label, i) => {
+          const isActive = i === step; const isComplete = i < step
+          return (
+            <div key={label} className="flex-1 flex flex-col items-center gap-1.5">
+              <div className="w-full h-1.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <motion.div className={isComplete ? 'h-full bg-emerald-500 rounded-full' : isActive ? 'h-full bg-primary-500 rounded-full' : 'h-full'}
+                  initial={{ width: 0 }} animate={{ width: isComplete ? '100%' : isActive ? '50%' : '0%' }} transition={{ duration: 0.4 }} />
               </div>
-            )
-          })}
-          {date && <p className="text-sm text-slate-500 dark:text-slate-400">First step scheduled: {date}{time ? ` at ${time}` : ''}</p>}
-        </div>
-      )}
-      {campaignType && step === 5 && <StepSend onSend={handleSend} sending={sending} />}
+              <span className={`text-[10px] font-semibold uppercase tracking-wider ${isActive ? 'text-primary-600 dark:text-primary-400' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-300 dark:text-slate-600'}`}>{label}</span>
+            </div>
+          )
+        })}
+      </div>
 
-      {/* Navigation buttons */}
-      {campaignType && (
-        <div className="flex items-center justify-end gap-3">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={() => setStep(step - 1)}
-              className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              Back
-            </button>
+      {/* Step content */}
+      <AnimatePresence mode="wait">
+        <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+          {step === 0 && <StepType value={campaignType} onChange={setCampaignType} />}
+          {step === 1 && <StepAudience segmentId={segmentId} setSegmentId={setSegmentId} />}
+          {step === 2 && campaignType === 'single' && <StepContentSingle templateId={templateId} setTemplateId={setTemplateId} mode={contentMode} setMode={setContentMode} customSubject={customSubject} setCustomSubject={setCustomSubject} customBody={customBody} setCustomBody={setCustomBody} />}
+          {step === 2 && campaignType === 'drip' && (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Build your email sequence</h2>
+                <p className="text-sm text-slate-400 dark:text-slate-500">Add steps, set delays between emails, and configure conditions. {dripSteps.length}/10 steps.</p>
+              </div>
+              <DripSequenceBuilder steps={dripSteps} onChange={setDripSteps} />
+            </div>
           )}
-          {step < 5 && (
-            <button
-              type="button"
-              onClick={() => setStep(step + 1)}
-              disabled={!canAdvance()}
-              className="px-5 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {step === 4 ? (campaignType === 'drip' ? 'Activate' : 'Finish') : 'Next'}
-            </button>
-          )}
+          {step === 3 && <StepSchedule date={date} setDate={setDate} time={time} setTime={setTime} />}
+          {step === 4 && <StepReviewSend campaignType={campaignType} segmentId={segmentId} templateId={templateId} mode={contentMode} customSubject={customSubject} customBody={customBody} dripSteps={dripSteps} date={date} time={time} onSend={handleSend} sending={sending} />}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation */}
+      {step < 4 && (
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button onClick={() => setStep(step + 1)} disabled={!canAdvance()}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+            Continue <ArrowRight size={16} />
+          </button>
         </div>
       )}
     </motion.div>

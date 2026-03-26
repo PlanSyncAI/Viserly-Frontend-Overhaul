@@ -196,10 +196,10 @@ function AreaChart({ data, width = 800, height = 220 }) {
         <motion.path d={repliedSeries.area} fill={`url(#${id}-replied)`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.8 }} />
 
         {/* Lines */}
-        <motion.path d={sentSeries.line} stroke="#635BFF" strokeWidth={2.5} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
-        <motion.path d={openedSeries.line} stroke="#8B5CF6" strokeWidth={2} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.1 }} />
-        <motion.path d={clickedSeries.line} stroke="#10B981" strokeWidth={2} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }} />
-        <motion.path d={repliedSeries.line} stroke="#14B8A6" strokeWidth={2} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }} />
+        <motion.path d={sentSeries.line} stroke="#635BFF" strokeWidth={1.5} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
+        <motion.path d={openedSeries.line} stroke="#8B5CF6" strokeWidth={1.5} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.1 }} />
+        <motion.path d={clickedSeries.line} stroke="#10B981" strokeWidth={1.5} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }} />
+        <motion.path d={repliedSeries.line} stroke="#14B8A6" strokeWidth={1.5} strokeLinecap="round" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }} />
 
         {/* End dots */}
         {[
@@ -208,17 +208,17 @@ function AreaChart({ data, width = 800, height = 220 }) {
           { series: clickedSeries, color: '#10B981' },
           { series: repliedSeries, color: '#14B8A6' },
         ].map(({ series, color }, idx) => (
-          <motion.circle key={color} cx={series.points[series.points.length - 1].x} cy={series.points[series.points.length - 1].y} r={4} fill="white" stroke={color} strokeWidth={2.5} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: 1.2 + idx * 0.1 }} />
+          <motion.circle key={color} cx={series.points[series.points.length - 1].x} cy={series.points[series.points.length - 1].y} r={3} fill="white" stroke={color} strokeWidth={1.5} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: 1.2 + idx * 0.1 }} />
         ))}
 
         {/* Hover crosshair + dots */}
         {hoverPoint && (
           <>
             <line x1={hoverPoint.x} y1={padding.top} x2={hoverPoint.x} y2={padding.top + chartH} stroke="#CBD5E1" strokeWidth={1} strokeDasharray="3 3" />
-            <circle cx={sentSeries.points[hover].x} cy={sentSeries.points[hover].y} r={5} fill="white" stroke="#635BFF" strokeWidth={2.5} />
-            <circle cx={openedSeries.points[hover].x} cy={openedSeries.points[hover].y} r={4} fill="white" stroke="#8B5CF6" strokeWidth={2} />
-            <circle cx={clickedSeries.points[hover].x} cy={clickedSeries.points[hover].y} r={4} fill="white" stroke="#10B981" strokeWidth={2} />
-            <circle cx={repliedSeries.points[hover].x} cy={repliedSeries.points[hover].y} r={4} fill="white" stroke="#14B8A6" strokeWidth={2} />
+            <circle cx={sentSeries.points[hover].x} cy={sentSeries.points[hover].y} r={3.5} fill="white" stroke="#635BFF" strokeWidth={1.5} />
+            <circle cx={openedSeries.points[hover].x} cy={openedSeries.points[hover].y} r={3} fill="white" stroke="#8B5CF6" strokeWidth={1.5} />
+            <circle cx={clickedSeries.points[hover].x} cy={clickedSeries.points[hover].y} r={3} fill="white" stroke="#10B981" strokeWidth={1.5} />
+            <circle cx={repliedSeries.points[hover].x} cy={repliedSeries.points[hover].y} r={3} fill="white" stroke="#14B8A6" strokeWidth={1.5} />
           </>
         )}
       </svg>

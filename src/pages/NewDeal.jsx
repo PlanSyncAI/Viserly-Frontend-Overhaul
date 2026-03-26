@@ -15,6 +15,7 @@ import {
 import { useContacts } from '../lib/useContacts'
 import { DEAL_STAGES, FEE_RATE } from '../lib/pipelineData'
 import { useToast } from '../components/ui/Toast'
+import DatePicker from '../components/ui/DatePicker'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -283,12 +284,7 @@ export default function NewDeal() {
                 </div>
                 <div>
                   <label className={labelClass}>Next Action Date</label>
-                  <input
-                    type="date"
-                    value={nextActionDate}
-                    onChange={(e) => setNextActionDate(e.target.value)}
-                    className={inputClass}
-                  />
+                  <DatePicker value={nextActionDate} onChange={setNextActionDate} placeholder="Select date" />
                 </div>
               </div>
               <div>

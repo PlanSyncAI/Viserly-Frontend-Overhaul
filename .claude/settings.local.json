@@ -6,7 +6,12 @@
       "Bash(grep -E \"\\\\.\\(config|css|json\\)$\")",
       "Bash(find /Users/cameronabernethy/Documents/Viserly-Frontend-Design/public -type f \\\\\\(-name *.svg -o -name *.png -o -name *.jpg -o -name *.jpeg -o -name *.gif -o -name *.webp \\\\\\))",
       "Bash(awk -F',' '{print NF}' /Users/cameronabernethy/Documents/Viserly-Frontend-Design/public/data/contacts.csv)",
-      "Bash(wc -l /Users/cameronabernethy/Documents/Viserly-Frontend-Design/src/pages/*.jsx)"
+      "Bash(wc -l /Users/cameronabernethy/Documents/Viserly-Frontend-Design/src/pages/*.jsx)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel --prod)",
+      "Bash(vercel --prod --yes)",
+      "Bash(vercel --prod --yes --name viserly-frontend)",
+      "Bash(npm run:*)"
     ]
   }
 }
