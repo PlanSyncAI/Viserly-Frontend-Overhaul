@@ -15,11 +15,13 @@ import {
   GraduationCap,
   ArrowRight,
   CornerDownLeft,
+  Target,
 } from 'lucide-react'
 import { useContacts } from '../../lib/useContacts'
 import { DUMMY_SEGMENTATIONS } from '../../lib/segmentationData'
 import { DUMMY_TEMPLATES } from '../../lib/templateData'
 import { DUMMY_CAMPAIGNS } from '../../lib/campaignData'
+import { DUMMY_DEALS } from '../../lib/pipelineData'
 
 const PAGES = [
   { label: 'Home', path: '/', icon: Home },
@@ -32,6 +34,7 @@ const PAGES = [
   { label: 'Communication History', path: '/communication-history', icon: History },
   { label: 'User Profile', path: '/user-profile', icon: User },
   { label: 'Learning Center', path: '/learning-center', icon: GraduationCap },
+  { label: 'Deal Pipeline', path: '/pipeline', icon: Target },
 ]
 
 const MAX_PER_SECTION = 5
@@ -139,6 +142,22 @@ export default function GlobalSearch({ collapsed }) {
         icon: Megaphone,
       }))
 
+    const matchedDeals = DUMMY_DEALS
+      .filter((d) =>
+        d.participantName.toLowerCase().includes(q) ||
+        d.accountName.toLowerCase().includes(q) ||
+        d.source.toLowerCase().includes(q)
+      )
+      .slice(0, MAX_PER_SECTION)
+      .map((d) => ({
+        type: 'deal',
+        id: d.id,
+        label: d.participantName,
+        sub: `$${d.dealValue.toLocaleString()} · ${d.stage.replace('_', ' ')}`,
+        path: `/pipeline/${d.id}`,
+        icon: Target,
+      }))
+
     const matchedPages = PAGES
       .filter((p) => p.label.toLowerCase().includes(q))
       .map((p) => ({
@@ -150,7 +169,7 @@ export default function GlobalSearch({ collapsed }) {
         icon: p.icon,
       }))
 
-    return { matchedContacts, matchedSegments, matchedTemplates, matchedCampaigns, matchedPages }
+    return { matchedContacts, matchedSegments, matchedTemplates, matchedCampaigns, matchedDeals, matchedPages }
   }, [query, contacts, campaigns])
 
   const flatResults = useMemo(() => {
@@ -161,6 +180,7 @@ export default function GlobalSearch({ collapsed }) {
       ...results.matchedSegments,
       ...results.matchedTemplates,
       ...results.matchedCampaigns,
+      ...results.matchedDeals,
     ]
   }, [results])
 
@@ -197,6 +217,7 @@ export default function GlobalSearch({ collapsed }) {
     segmentation: 'Segmentations',
     template: 'Templates',
     campaign: 'Campaigns',
+    deal: 'Deals',
   }
   const sectionColors = {
     page: 'text-slate-500 bg-slate-100 dark:bg-slate-800',
@@ -204,6 +225,7 @@ export default function GlobalSearch({ collapsed }) {
     segmentation: 'text-purple-600 bg-purple-50',
     template: 'text-amber-600 bg-amber-50',
     campaign: 'text-emerald-600 bg-emerald-50',
+    deal: 'text-primary-600 bg-primary-50',
   }
 
   // For collapsed sidebar, clicking the icon opens expanded search
@@ -253,7 +275,7 @@ export default function GlobalSearch({ collapsed }) {
           ) : (
             <div className="max-h-[420px] overflow-y-auto py-1">
               {/* Render grouped by type */}
-              {['page', 'contact', 'segmentation', 'template', 'campaign'].map((type) => {
+              {['page', 'contact', 'segmentation', 'template', 'campaign', 'deal'].map((type) => {
                 const items = flatResults.filter((r) => r.type === type)
                 if (items.length === 0) return null
                 return (

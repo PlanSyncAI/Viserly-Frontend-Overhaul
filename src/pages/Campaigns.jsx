@@ -124,17 +124,17 @@ export default function Campaigns() {
 
   const columns = [
     { key: 'name', label: 'Campaign' },
+    { key: 'type', label: 'Type' },
     { key: 'status', label: 'Status' },
     { key: 'segmentName', label: 'Segment' },
     { key: 'recipients', label: 'Recipients' },
     { key: 'scheduledAt', label: 'Send Date' },
     { key: 'openRate', label: 'Open Rate' },
-    { key: 'clickRate', label: 'Click Rate' },
   ]
 
   return (
     <motion.div
-      className="p-8 max-w-[1400px] mx-auto space-y-6"
+      className="p-8 mx-auto space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -190,7 +190,7 @@ export default function Campaigns() {
             icon: Megaphone,
             color: 'primary',
             sparkData: SPARKLINE_CAMPAIGNS,
-            onClick: () => {},
+            onClick: () => document.querySelector('table')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
           },
           {
             label: 'Emails Sent',
@@ -207,7 +207,7 @@ export default function Campaigns() {
             icon: Eye,
             color: 'purple',
             ring: parseFloat(aggStats.avgOpenRate),
-            onClick: () => {},
+            onClick: () => navigate('/communication-history'),
           },
           {
             label: 'Avg Click Rate',
@@ -216,7 +216,7 @@ export default function Campaigns() {
             icon: MousePointerClick,
             color: 'emerald',
             ring: parseFloat(aggStats.avgClickRate),
-            onClick: () => {},
+            onClick: () => navigate('/communication-history'),
           },
         ].map((card) => {
           const colors = {
@@ -365,11 +365,32 @@ export default function Campaigns() {
                   >
                     <td className="px-5 py-3.5">
                       <div>
-                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400 group-hover:text-primary-700">
+                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
                           {c.name}
                         </span>
-                        <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[220px]">{c.templateName}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate max-w-[220px]">
+                          {c.type === 'drip'
+                            ? `${c.totalSteps}-step sequence`
+                            : c.templateName}
+                        </p>
+                        {c.type === 'drip' && c.status === 'Active' && (
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <div className="flex-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden max-w-[120px]">
+                              <div className="h-full bg-primary-500 rounded-full" style={{ width: `${c.totalSteps > 0 ? ((c.currentStep + 1) / c.totalSteps) * 100 : 0}%` }} />
+                            </div>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500 tabular-nums">Step {c.currentStep + 1}/{c.totalSteps}</span>
+                          </div>
+                        )}
                       </div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        c.type === 'drip'
+                          ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                          : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                      }`}>
+                        {c.type === 'drip' ? 'Drip' : 'Single'}
+                      </span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[c.status]}`}>
@@ -378,17 +399,14 @@ export default function Campaigns() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-300">
-                      {c.segmentName || <span className="text-slate-400">—</span>}
+                      {c.segmentName || <span className="text-slate-400 dark:text-slate-500">{'\u2014'}</span>}
                     </td>
                     <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-300 tabular-nums">{c.recipients.toLocaleString()}</td>
                     <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                       {formatDate(c.scheduledAt)}
                     </td>
                     <td className="px-5 py-3.5 text-sm font-medium text-slate-700 dark:text-slate-200 tabular-nums">
-                      {c.stats.sent > 0 ? c.stats.openRate + '%' : '—'}
-                    </td>
-                    <td className="px-5 py-3.5 text-sm font-medium text-slate-700 dark:text-slate-200 tabular-nums">
-                      {c.stats.sent > 0 ? c.stats.clickRate + '%' : '—'}
+                      {c.stats.sent > 0 ? c.stats.openRate + '%' : '\u2014'}
                     </td>
                     <td className="px-5 py-3.5">
                       <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-500 transition-colors" />

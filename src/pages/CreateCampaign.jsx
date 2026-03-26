@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   Mail,
   Search,
@@ -16,13 +17,41 @@ import {
 } from 'lucide-react'
 import { DUMMY_SEGMENTATIONS } from '../lib/segmentationData'
 import { DUMMY_TEMPLATES, SAMPLE_MERGE_VALUES } from '../lib/templateData'
+import CampaignTypeSelector from '../components/ui/CampaignTypeSelector'
+import DripSequenceBuilder from '../components/ui/DripSequenceBuilder'
 
-const STEPS = [
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.5, delay: i * 0.075, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+}
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.075 } },
+}
+
+const SINGLE_STEPS = [
   { num: 1, label: 'Choose a segmented audience', icon: Users },
   { num: 2, label: 'Choose an email template', icon: FileText },
   { num: 3, label: 'Schedule delivery', icon: CalendarClock },
   { num: 4, label: 'Review and verify merged content', icon: ClipboardCheck },
   { num: 5, label: 'Press send', icon: SendHorizonal },
+]
+
+const DRIP_STEPS = [
+  { num: 1, label: 'Choose a segmented audience', icon: Users },
+  { num: 2, label: 'Build your email sequence', icon: Target },
+  { num: 3, label: 'Schedule first delivery', icon: CalendarClock },
+  { num: 4, label: 'Review all steps', icon: ClipboardCheck },
+  { num: 5, label: 'Activate sequence', icon: SendHorizonal },
+]
+
+const DEFAULT_DRIP_STEPS = [
+  { id: 'step-1', order: 0, templateId: null, delayAmount: 0, delayUnit: 'days', condition: null },
+  { id: 'step-2', order: 1, templateId: null, delayAmount: 3, delayUnit: 'days', condition: null },
 ]
 
 /* ─── Searchable Dropdown ───────────────────────────────────────────────────── */
@@ -396,18 +425,25 @@ function StepSend({ onSend, sending }) {
 
 export default function CreateCampaign() {
   const navigate = useNavigate()
+  const [campaignType, setCampaignType] = useState(null) // null | 'single' | 'drip'
   const [step, setStep] = useState(1)
   const [segmentId, setSegmentId] = useState(null)
   const [templateId, setTemplateId] = useState(null)
+  const [dripSteps, setDripSteps] = useState(DEFAULT_DRIP_STEPS)
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [delayCalc, setDelayCalc] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
+  const STEPS = campaignType === 'drip' ? DRIP_STEPS : SINGLE_STEPS
+
   const canAdvance = () => {
     if (step === 1) return segmentId !== null
-    if (step === 2) return templateId !== null
+    if (step === 2) {
+      if (campaignType === 'drip') return dripSteps.length >= 2 && dripSteps.every((s) => s.templateId !== null)
+      return templateId !== null
+    }
     if (step === 3) return date !== ''
     return true
   }
@@ -441,9 +477,11 @@ export default function CreateCampaign() {
             </button>
             <button
               onClick={() => {
+                setCampaignType(null)
                 setStep(1)
                 setSegmentId(null)
                 setTemplateId(null)
+                setDripSteps(DEFAULT_DRIP_STEPS)
                 setDate('')
                 setTime('')
                 setDelayCalc(false)
@@ -460,9 +498,9 @@ export default function CreateCampaign() {
   }
 
   return (
-    <div className="p-8 max-w-[1000px] mx-auto space-y-6">
+    <motion.div className="p-8 max-w-[1000px] mx-auto space-y-6" variants={staggerContainer} initial="hidden" animate="visible">
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-100 via-primary-50 to-white border border-primary-100/60 px-8 py-10 text-center">
+      <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-100 via-primary-50 to-white dark:from-primary-500/10 dark:via-primary-500/5 dark:to-slate-900 border border-primary-100/60 dark:border-slate-800 px-8 py-10 text-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.08),transparent_50%)]" />
         <div className="relative">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-primary-200/40 text-[11px] font-semibold text-primary-600 uppercase tracking-wider mb-4">
@@ -472,17 +510,33 @@ export default function CreateCampaign() {
           <div className="w-14 h-14 rounded-2xl bg-white/80 border border-slate-200/60 shadow-sm flex items-center justify-center mx-auto mb-4">
             <Mail size={28} strokeWidth={1.5} className="text-slate-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white dark:text-white tracking-tight mb-2">
-            Schedule a Campaign in 5 Easy Steps
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">
+            {campaignType ? (campaignType === 'drip' ? 'Build a Drip Sequence' : 'Schedule a Campaign in 5 Easy Steps') : 'Create a Campaign'}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
-            Build the audience, pick a template, schedule delivery, and launch with confidence.
+            {campaignType ? 'Build the audience, pick templates, schedule delivery, and launch with confidence.' : 'Choose how you want to reach your audience.'}
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* How It Works + Step content */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
+      {/* Type Selector (before wizard) */}
+      {!campaignType && (
+        <div className="space-y-6">
+          <CampaignTypeSelector value={campaignType} onChange={setCampaignType} />
+          <div className="flex justify-center">
+            <button
+              disabled={!campaignType}
+              onClick={() => setStep(1)}
+              className="px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* How It Works + Step content (shown after type selection) */}
+      {campaignType && <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-8">
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-base font-bold text-slate-900">How It Works</h3>
           <span className="text-xs font-semibold text-primary-500 bg-primary-50 px-2.5 py-1 rounded-full">
@@ -530,37 +584,66 @@ export default function CreateCampaign() {
             )
           })}
         </div>
-      </div>
+      </div>}
 
       {/* Active step content */}
-      {step === 1 && <StepSegmentation segmentId={segmentId} setSegmentId={setSegmentId} />}
-      {step === 2 && <StepTemplate templateId={templateId} setTemplateId={setTemplateId} />}
-      {step === 3 && <StepSchedule date={date} setDate={setDate} time={time} setTime={setTime} delayCalc={delayCalc} setDelayCalc={setDelayCalc} />}
-      {step === 4 && <StepReview segmentId={segmentId} templateId={templateId} date={date} time={time} delayCalc={delayCalc} />}
-      {step === 5 && <StepSend onSend={handleSend} sending={sending} />}
+      {campaignType && step === 1 && <StepSegmentation segmentId={segmentId} setSegmentId={setSegmentId} />}
+      {campaignType && step === 2 && campaignType === 'single' && <StepTemplate templateId={templateId} setTemplateId={setTemplateId} />}
+      {campaignType && step === 2 && campaignType === 'drip' && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
+          <DripSequenceBuilder steps={dripSteps} onChange={setDripSteps} />
+        </div>
+      )}
+      {campaignType && step === 3 && <StepSchedule date={date} setDate={setDate} time={time} setTime={setTime} delayCalc={delayCalc} setDelayCalc={setDelayCalc} />}
+      {campaignType && step === 4 && campaignType === 'single' && <StepReview segmentId={segmentId} templateId={templateId} date={date} time={time} delayCalc={delayCalc} />}
+      {campaignType && step === 4 && campaignType === 'drip' && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 space-y-4">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">Sequence Summary</h3>
+          <p className="text-sm text-slate-400 dark:text-slate-500">Review your {dripSteps.length}-step drip sequence before activating.</p>
+          {dripSteps.map((s, i) => {
+            const tpl = DUMMY_TEMPLATES.find((t) => t.id === s.templateId)
+            return (
+              <div key={s.id} className="flex items-center gap-4 py-3 px-4 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="w-8 h-8 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{tpl?.name || 'No template selected'}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    {i === 0 ? 'Sends immediately' : `${s.delayAmount} ${s.delayUnit} after previous`}
+                    {s.condition ? ` · ${s.condition.type.replace(/_/g, ' ')}` : ''}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+          {date && <p className="text-sm text-slate-500 dark:text-slate-400">First step scheduled: {date}{time ? ` at ${time}` : ''}</p>}
+        </div>
+      )}
+      {campaignType && step === 5 && <StepSend onSend={handleSend} sending={sending} />}
 
       {/* Navigation buttons */}
-      <div className="flex items-center justify-end gap-3">
-        {step > 1 && (
-          <button
-            type="button"
-            onClick={() => setStep(step - 1)}
-            className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Back
-          </button>
-        )}
-        {step < 5 && (
-          <button
-            type="button"
-            onClick={() => setStep(step + 1)}
-            disabled={!canAdvance()}
-            className="px-5 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {step === 4 ? 'Finish' : 'Next'}
-          </button>
-        )}
-      </div>
-    </div>
+      {campaignType && (
+        <div className="flex items-center justify-end gap-3">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              Back
+            </button>
+          )}
+          {step < 5 && (
+            <button
+              type="button"
+              onClick={() => setStep(step + 1)}
+              disabled={!canAdvance()}
+              className="px-5 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {step === 4 ? (campaignType === 'drip' ? 'Activate' : 'Finish') : 'Next'}
+            </button>
+          )}
+        </div>
+      )}
+    </motion.div>
   )
 }

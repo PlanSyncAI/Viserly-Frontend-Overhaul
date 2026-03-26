@@ -25,7 +25,7 @@ import {
 import AnimatedCounter from '../components/ui/AnimatedCounter'
 import MiniProgressRing from '../components/ui/MiniProgressRing'
 import CommHistoryTable from '../components/ui/CommHistoryTable'
-import { getCampaignById, STATUS_STYLES, formatTimeUntil } from '../lib/campaignData'
+import { getCampaignById, STATUS_STYLES, formatTimeUntil, getDripProgress, getConditionLabel } from '../lib/campaignData'
 import { getCommsForCampaign } from '../lib/communicationData'
 
 const fadeUp = {
@@ -80,8 +80,15 @@ function InfoField({ label, value, icon: Icon, link, navigate: nav }) {
   )
 }
 
-const tabs = [
+const singleTabs = [
   { key: 'overview', label: 'Overview' },
+  { key: 'recipients', label: 'Recipients' },
+  { key: 'comms', label: 'Communication History' },
+]
+
+const dripTabs = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'sequence', label: 'Sequence' },
   { key: 'recipients', label: 'Recipients' },
   { key: 'comms', label: 'Communication History' },
 ]
@@ -176,7 +183,7 @@ export default function CampaignDetail() {
 
   return (
     <motion.div
-      className="p-8 max-w-[1200px] mx-auto space-y-6"
+      className="p-8 mx-auto space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -204,6 +211,11 @@ export default function CampaignDetail() {
                 {campaign.status === 'Scheduled' && <span className="w-1.5 h-1.5 rounded-full bg-current mr-1 animate-pulse" />}
                 {campaign.status}
               </span>
+              {campaign.type === 'drip' && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  Drip \u00B7 {campaign.totalSteps} steps
+                </span>
+              )}
             </div>
             <p className="text-sm text-slate-400">{campaign.description}</p>
           </div>
@@ -222,7 +234,7 @@ export default function CampaignDetail() {
       {/* Tabs */}
       <motion.div variants={fadeUp} className="border-b border-slate-200 dark:border-slate-800">
         <div className="flex gap-0">
-          {tabs.map((tab) => (
+          {(campaign?.type === 'drip' ? dripTabs : singleTabs).map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -406,6 +418,124 @@ export default function CampaignDetail() {
       )}
 
       {/* ── Tab: Communication History ─────────────────────────── */}
+      {/* Sequence Tab (Drip Only) */}
+      {activeTab === 'sequence' && campaign.type === 'drip' && (
+        <div className="space-y-4">
+          {/* Drip progress header */}
+          {(() => {
+            const progress = getDripProgress(campaign)
+            return progress && (
+              <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 flex items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Sequence Progress</h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary-50 dark:bg-primary-500/15 text-primary-600 dark:text-primary-400 tabular-nums">
+                      {progress.completedSteps} of {progress.totalSteps} steps sent
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {campaign.steps.map((step, i) => {
+                      const isCompleted = step.stats.sent > 0
+                      const isActive = i === campaign.currentStep
+                      return (
+                        <div key={step.id} className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                            isCompleted ? 'bg-emerald-500' : isActive ? 'bg-primary-500 animate-pulse' : 'bg-slate-200 dark:bg-slate-700'
+                          }`} />
+                          {i < campaign.steps.length - 1 && (
+                            <div className={`w-8 h-0.5 ${isCompleted ? 'bg-emerald-300 dark:bg-emerald-500/40' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })()}
+
+          {/* Step cards */}
+          {campaign.steps.map((step, i) => {
+            const isCompleted = step.stats.sent > 0
+            const isActive = i === campaign.currentStep && !isCompleted
+            const isPending = !isCompleted && !isActive
+            const maxVal = Math.max(step.stats.sent, step.stats.total, 1)
+
+            return (
+              <motion.div key={step.id} variants={fadeUp}>
+                {/* Connector */}
+                {i > 0 && (
+                  <div className="flex items-center justify-center py-2">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-px h-3 border-l-2 border-dashed border-slate-200 dark:border-slate-700" />
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-500 dark:text-slate-400 tabular-nums">
+                          {step.delayAmount} {step.delayUnit}
+                        </span>
+                        {step.condition && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+                            {getConditionLabel(step.condition)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="w-px h-3 border-l-2 border-dashed border-slate-200 dark:border-slate-700" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Step card */}
+                <div className={`bg-white dark:bg-slate-900 rounded-2xl border p-5 ${
+                  isActive ? 'border-primary-300 dark:border-primary-500/40 ring-1 ring-primary-200 dark:ring-primary-500/20' :
+                  isCompleted ? 'border-emerald-200 dark:border-emerald-500/30' :
+                  'border-slate-200/60 dark:border-slate-800 opacity-60'
+                }`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                      isCompleted ? 'bg-emerald-500 text-white' :
+                      isActive ? 'bg-primary-500 text-white' :
+                      'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                    }`}>
+                      {isCompleted ? <CheckCircle2 size={14} /> : i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">{step.templateName}</h4>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {isCompleted ? 'Completed' : isActive ? 'Active' : 'Pending'}
+                        {i === 0 ? ' \u00B7 Sent immediately' : ` \u00B7 ${step.delayAmount} ${step.delayUnit} delay`}
+                      </p>
+                    </div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      isCompleted ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' :
+                      isActive ? 'bg-primary-50 dark:bg-primary-500/15 text-primary-700 dark:text-primary-400' :
+                      'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    }`}>
+                      {isCompleted ? 'Sent' : isActive ? 'In Progress' : 'Queued'}
+                    </span>
+                  </div>
+
+                  {/* Stats (only for completed/active steps) */}
+                  {step.stats.sent > 0 && (
+                    <div className="grid grid-cols-4 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      {[
+                        { label: 'Sent', value: step.stats.sent },
+                        { label: 'Opened', value: step.stats.opened },
+                        { label: 'Clicked', value: step.stats.clicked },
+                        { label: 'Open Rate', value: step.stats.openRate + '%' },
+                      ].map((s) => (
+                        <div key={s.label} className="text-center">
+                          <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{s.value}</p>
+                          <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase">{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+
       {activeTab === 'comms' && (
         <CommHistoryTable records={commRecords} showCampaign={false} />
       )}

@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import ParticipantData from './pages/ParticipantData'
 import ParticipantDetail from './pages/ParticipantDetail'
 import PlanData from './pages/PlanData'
+import AccountDetail from './pages/AccountDetail'
 import Segmentations from './pages/Segmentations'
 import NewSegmentation from './pages/NewSegmentation'
 import SegmentationDetail from './pages/SegmentationDetail'
@@ -15,6 +16,9 @@ import Campaigns from './pages/Campaigns'
 import CampaignDetail from './pages/CampaignDetail'
 import CreateCampaign from './pages/CreateCampaign'
 import CommunicationHistory from './pages/CommunicationHistory'
+import Pipeline from './pages/Pipeline'
+import DealDetail from './pages/DealDetail'
+import NewDeal from './pages/NewDeal'
 import UserProfile from './pages/UserProfile'
 import LearningCenter from './pages/LearningCenter'
 
@@ -26,6 +30,7 @@ export default function App() {
         <Route path="participant-data" element={<ParticipantData />} />
         <Route path="participant-data/:id" element={<ParticipantDetail />} />
         <Route path="plan-data" element={<PlanData />} />
+        <Route path="plan-data/:slug" element={<AccountDetail />} />
         <Route path="segmentations" element={<Segmentations />} />
         <Route path="segmentations/new" element={<NewSegmentation />} />
         <Route path="segmentations/:id" element={<SegmentationDetail />} />
@@ -37,6 +42,9 @@ export default function App() {
         <Route path="campaigns/new" element={<CreateCampaign />} />
         <Route path="campaigns/:id" element={<CampaignDetail />} />
         <Route path="communication-history" element={<CommunicationHistory />} />
+        <Route path="pipeline" element={<Pipeline />} />
+        <Route path="pipeline/new" element={<NewDeal />} />
+        <Route path="pipeline/:id" element={<DealDetail />} />
         <Route path="user-profile" element={<UserProfile />} />
         <Route path="learning-center" element={<LearningCenter />} />
       </Route>

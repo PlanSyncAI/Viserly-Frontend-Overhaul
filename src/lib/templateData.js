@@ -81,6 +81,12 @@ export const SAMPLE_MERGE_VALUES = {
   'User-Signature': 'Jane Smith\nPlan Advisor | Viserly\njane.smith@viserly.com | (555) 123-4567',
 }
 
+export const TEMPLATE_STATUS_STYLES = {
+  Active: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400',
+  Draft: 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400',
+  Archived: 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400',
+}
+
 export const DUMMY_TEMPLATES = [
   {
     id: 1,
@@ -94,6 +100,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: 'Viserly',
     isDefault: true,
+    status: 'Active',
+    usageCount: 142,
+    lastUsedDate: '2026-03-18',
+    category: 'Milestone',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '4:37 PM',
@@ -117,6 +127,10 @@ Click here to schedule a conversation: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Active',
+    usageCount: 98,
+    lastUsedDate: '2026-03-12',
+    category: 'Milestone',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '4:42 PM',
@@ -141,6 +155,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: 'Viserly',
     isDefault: true,
+    status: 'Active',
+    usageCount: 67,
+    lastUsedDate: '2026-03-05',
+    category: 'Financial Strategy',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '4:45 PM',
@@ -165,6 +183,10 @@ Wishing you a great year ahead!
 *[[User-Signature]]*`,
     source: 'Viserly',
     isDefault: true,
+    status: 'Active',
+    usageCount: 215,
+    lastUsedDate: '2026-03-22',
+    category: 'Lifecycle',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '4:50 PM',
@@ -193,6 +215,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Active',
+    usageCount: 53,
+    lastUsedDate: '2026-02-28',
+    category: 'Retirement Planning',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '4:55 PM',
@@ -217,6 +243,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Active',
+    usageCount: 31,
+    lastUsedDate: '2026-03-01',
+    category: 'Compliance',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '5:00 PM',
@@ -247,6 +277,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Active',
+    usageCount: 44,
+    lastUsedDate: '2026-02-15',
+    category: 'Retirement Planning',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '5:05 PM',
@@ -274,6 +308,10 @@ Click here to schedule a conversation: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: 'Viserly',
     isDefault: true,
+    status: 'Active',
+    usageCount: 19,
+    lastUsedDate: '2026-01-30',
+    category: 'Enrollment',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '5:10 PM',
@@ -302,6 +340,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Draft',
+    usageCount: 0,
+    lastUsedDate: null,
+    category: 'Milestone',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '5:15 PM',
@@ -332,6 +374,10 @@ Click here to schedule: *[[User-CalendarLink]]*
 *[[User-Signature]]*`,
     source: '',
     isDefault: true,
+    status: 'Draft',
+    usageCount: 0,
+    lastUsedDate: null,
+    category: 'Retirement Planning',
     createdBy: 'support',
     createdDate: '2025-05-20',
     createdTime: '5:20 PM',
@@ -340,3 +386,13 @@ Click here to schedule: *[[User-CalendarLink]]*
     lastModifiedTime: '4:30 AM',
   },
 ]
+
+export function getTemplateStats() {
+  const total = DUMMY_TEMPLATES.length
+  const viserly = DUMMY_TEMPLATES.filter((t) => t.source === 'Viserly').length
+  const custom = total - viserly
+  const active = DUMMY_TEMPLATES.filter((t) => t.status === 'Active').length
+  const totalMergeFields = Object.values(MERGE_FIELDS).reduce((sum, arr) => sum + arr.length, 0)
+  const totalUsage = DUMMY_TEMPLATES.reduce((sum, t) => sum + (t.usageCount || 0), 0)
+  return { total, viserly, custom, active, totalMergeFields, totalUsage }
+}

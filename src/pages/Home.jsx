@@ -22,6 +22,8 @@ import {
   CalendarClock,
   Clock,
   Sparkles,
+  Target,
+  DollarSign,
 } from 'lucide-react'
 import AnimatedCounter from '../components/ui/AnimatedCounter'
 import Sparkline from '../components/ui/Sparkline'
@@ -34,6 +36,7 @@ import {
   COMM_STATUS_STYLES,
 } from '../lib/communicationData'
 import { DUMMY_SEGMENTATIONS } from '../lib/segmentationData'
+import { DUMMY_DEALS, DEAL_STAGES, STAGE_DOT_COLORS, getPipelineStats } from '../lib/pipelineData'
 
 /* ─── Animation Variants ────────────────────────────────────────────────────── */
 const fadeUp = {
@@ -404,7 +407,7 @@ export default function Home() {
   const contextLine = `${campaigns.length} active campaign${campaigns.length !== 1 ? 's' : ''} · ${stats.sent} emails sent · ${DUMMY_SEGMENTATIONS.length} segments`
 
   return (
-    <div className="p-8 max-w-[1400px] mx-auto space-y-8">
+    <div className="p-8 mx-auto space-y-8">
 
       {/* ═══ Section 1: Premium Welcome Hero ═══ */}
       <motion.div
@@ -723,6 +726,82 @@ export default function Home() {
           ))}
         </motion.div>
       </div>
+
+      {/* ═══ Section 4b: Deal Pipeline Snapshot ═══ */}
+      <motion.div
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-sm"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-50px' }}
+        variants={fadeUp}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-500/15 flex items-center justify-center">
+              <Target size={18} strokeWidth={1.75} className="text-primary-500" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Deal Pipeline</h3>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Prospect conversion snapshot</p>
+            </div>
+          </div>
+          <button onClick={() => navigate('/pipeline')} className="flex items-center gap-1 text-xs font-medium text-primary-500 hover:text-primary-600 transition-colors cursor-pointer">
+            View pipeline <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {/* Stage bar */}
+        {(() => {
+          const pStats = getPipelineStats(DUMMY_DEALS)
+          const activeDeals = DUMMY_DEALS.filter((d) => d.stage !== 'won' && d.stage !== 'lost')
+          const total = activeDeals.length || 1
+          return (
+            <>
+              <div className="flex rounded-lg overflow-hidden h-3 mb-4">
+                {DEAL_STAGES.filter((s) => s.key !== 'won' && s.key !== 'lost').map((stage) => {
+                  const count = activeDeals.filter((d) => d.stage === stage.key).length
+                  if (count === 0) return null
+                  return (
+                    <div
+                      key={stage.key}
+                      className={`${STAGE_DOT_COLORS[stage.key]} transition-all`}
+                      style={{ width: `${(count / total) * 100}%` }}
+                      title={`${stage.label}: ${count}`}
+                    />
+                  )
+                })}
+              </div>
+              <div className="flex items-center gap-4 mb-4 flex-wrap">
+                {DEAL_STAGES.filter((s) => s.key !== 'won' && s.key !== 'lost').map((stage) => {
+                  const count = DUMMY_DEALS.filter((d) => d.stage === stage.key).length
+                  if (count === 0) return null
+                  return (
+                    <div key={stage.key} className="flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${STAGE_DOT_COLORS[stage.key]}`} />
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">{stage.label}</span>
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">${(pStats.totalValue / 1000).toFixed(0)}k</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">Pipeline Value</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{pStats.winRate}%</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">Win Rate</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{pStats.activeDeals}</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">Active Deals</p>
+                </div>
+              </div>
+            </>
+          )
+        })()}
+      </motion.div>
 
       {/* ═══ Section 5: Upcoming Scheduled Sends ═══ */}
       <motion.div

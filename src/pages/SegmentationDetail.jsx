@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   Download,
@@ -13,12 +14,28 @@ import {
   ChevronsUpDown,
   ChevronUp,
   ChevronDown,
+  Info,
+  Layers,
 } from 'lucide-react'
 import { DUMMY_SEGMENTATIONS, FILTER_FIELDS, OPERATORS } from '../lib/segmentationData'
 import { useContacts } from '../lib/useContacts'
 import FilterBuilder from '../components/ui/FilterBuilder'
 import CommHistoryTable from '../components/ui/CommHistoryTable'
 import { getCommsForSegment, getCommStats } from '../lib/communicationData'
+import AnimatedCounter from '../components/ui/AnimatedCounter'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.5, delay: i * 0.075, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+}
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.075 } },
+}
 
 const PAGE_SIZE = 25
 
@@ -30,9 +47,21 @@ const tabs = [
 
 function Field({ label, value }) {
   return (
-    <div className="py-3 px-4 border border-slate-100 dark:border-slate-800 rounded-lg">
-      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
+    <div className="py-3 px-4 border border-slate-100 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-800/30">
+      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm text-slate-900 dark:text-white font-medium">{value || 'N/A'}</p>
+    </div>
+  )
+}
+
+function SectionHeader({ title, color = 'dark' }) {
+  const colors = {
+    dark: 'bg-slate-700 dark:bg-slate-600',
+    muted: 'bg-slate-600 dark:bg-slate-500',
+  }
+  return (
+    <div className={`${colors[color]} text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl`}>
+      {title}
     </div>
   )
 }
@@ -41,22 +70,30 @@ function SegmentCommTab({ segmentId }) {
   const records = getCommsForSegment(segmentId)
   const stats = getCommStats(records)
 
+  const statCards = [
+    { label: 'Total Sent', value: stats.sent, color: 'blue' },
+    { label: 'Delivered', value: stats.delivered, color: 'emerald' },
+    { label: 'Opened', value: stats.opened, color: 'purple' },
+    { label: 'Clicked', value: stats.clicked, color: 'indigo' },
+    { label: 'Open Rate', value: stats.openRate, suffix: '%', color: 'amber' },
+  ]
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-5 gap-3">
-        {[
-          { label: 'Total Sent', value: stats.sent },
-          { label: 'Delivered', value: stats.delivered },
-          { label: 'Opened', value: stats.opened },
-          { label: 'Clicked', value: stats.clicked },
-          { label: 'Open Rate', value: stats.openRate + '%' },
-        ].map((s) => (
-          <div key={s.label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 text-center">
-            <p className="text-2xl font-bold text-slate-900 dark:text-white dark:text-white tracking-tight">{s.value}</p>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mt-1">{s.label}</p>
-          </div>
+      <motion.div variants={fadeUp} className="grid grid-cols-5 gap-3">
+        {statCards.map((s) => (
+          <motion.div
+            key={s.label}
+            whileHover={{ y: -2, boxShadow: '0 8px 25px -5px rgba(0,0,0,0.08)' }}
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 text-center"
+          >
+            <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight tabular-nums">
+              <AnimatedCounter value={parseFloat(s.value)} />{s.suffix || ''}
+            </p>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">{s.label}</p>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
       <CommHistoryTable records={records} showSegment={false} />
     </div>
   )
@@ -72,18 +109,15 @@ export default function SegmentationDetail() {
   const [name, setName] = useState(segment?.name || '')
   const [description, setDescription] = useState(segment?.description || '')
 
-  // Contacts tab state
   const { contacts, loading: contactsLoading } = useContacts()
   const [contactSearch, setContactSearch] = useState('')
   const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState('fullName')
   const [sortDir, setSortDir] = useState('asc')
 
-  // Apply filters to contacts for the segmented list
   const segmentedContacts = useMemo(() => {
     let data = contacts
 
-    // Apply each active filter
     filters.forEach((f) => {
       if (!f.field || !f.operator || f.value === '') return
       data = data.filter((contact) => {
@@ -137,16 +171,16 @@ export default function SegmentationDetail() {
   }
 
   function SortIcon({ colKey }) {
-    if (sortKey !== colKey) return <ChevronsUpDown size={14} className="text-slate-300" />
+    if (sortKey !== colKey) return <ChevronsUpDown size={13} className="text-slate-300 dark:text-slate-600" />
     return sortDir === 'asc'
-      ? <ChevronUp size={14} className="text-primary-500" />
-      : <ChevronDown size={14} className="text-primary-500" />
+      ? <ChevronUp size={13} className="text-primary-500" />
+      : <ChevronDown size={13} className="text-primary-500" />
   }
 
   if (!segment) {
     return (
       <div className="p-8 text-center">
-        <p className="text-slate-500">Segmentation not found.</p>
+        <p className="text-slate-500 dark:text-slate-400">Segmentation not found.</p>
         <button onClick={() => navigate('/segmentations')} className="mt-4 text-primary-500 text-sm hover:underline cursor-pointer">
           Back to Segmentations
         </button>
@@ -163,22 +197,18 @@ export default function SegmentationDetail() {
     { key: 'planBalance', label: 'Plan Balance' },
   ]
 
-  const filterSummary = filters
-    .filter((f) => f.field && f.operator)
-    .map((f) => {
-      const fieldLabel = FILTER_FIELDS.find((ff) => ff.key === f.field)?.label || f.field
-      const opLabel = OPERATORS.find((o) => o.key === f.operator)?.label || f.operator
-      return `${fieldLabel} ${opLabel} ${f.value}`
-    })
-    .join(', ')
-
   return (
-    <div className="p-8 max-w-[1400px] mx-auto space-y-6">
+    <motion.div
+      className="p-8 mx-auto space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Back + Actions */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <button
           onClick={() => navigate('/segmentations')}
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
         >
           <ArrowLeft size={16} />
           Back to Segmentations
@@ -188,15 +218,15 @@ export default function SegmentationDetail() {
             <Download size={14} />
             Download CSV
           </button>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors cursor-pointer">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors cursor-pointer">
             <Trash2 size={14} />
             Delete Segment
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
+      <motion.div variants={fadeUp} className="border-b border-slate-200 dark:border-slate-700">
         <div className="flex gap-0">
           {tabs.map((tab) => (
             <button
@@ -204,56 +234,52 @@ export default function SegmentationDetail() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
                 activeTab === tab.key
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-slate-400 hover:text-slate-600'
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Tab: Details */}
       {activeTab === 'details' && (
         <div className="space-y-6">
           {/* Campaign Info */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
-            <div className="bg-slate-800 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl">
-              Campaign Info
-            </div>
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+            <SectionHeader title="Campaign Info" />
             <div className="p-5 grid grid-cols-2 gap-3">
               <Field label="Name" value={segment.name} />
               <Field label="Owner" value={segment.owner} />
             </div>
-          </div>
+          </motion.div>
 
           {/* Description Info */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
-            <div className="bg-slate-600 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl">
-              Description Info
-            </div>
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+            <SectionHeader title="Description Info" color="muted" />
             <div className="p-5 grid grid-cols-2 gap-3">
               <Field label="Description" value={segment.description} />
               <Field label="Number of Contacts in Campaign" value={segmentedContacts.length.toString()} />
             </div>
-          </div>
+          </motion.div>
 
-          {/* Segmentation Builder */}
-          <div className="text-center py-6 bg-gradient-to-b from-primary-50/60 to-transparent rounded-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-100/80 text-primary-600 text-xs font-semibold mb-3">
+          {/* Segmentation Builder CTA */}
+          <motion.div variants={fadeUp} className="text-center py-6 bg-gradient-to-b from-primary-50/60 dark:from-primary-500/5 to-transparent rounded-2xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-100/80 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400 text-xs font-semibold mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
               INTELLIGENT SEGMENTATION
             </div>
-            <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center mx-auto mb-3">
-              <LayoutGrid size={24} strokeWidth={1.5} className="text-primary-600" />
+            <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center mx-auto mb-3">
+              <LayoutGrid size={24} strokeWidth={1.5} className="text-primary-600 dark:text-primary-400" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Segment Your Data With Precision</h3>
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Build dynamic audiences, filter with intent, and activate insights instantly.</p>
-          </div>
+          </motion.div>
 
           {/* Segment Name/Description (editable) */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
             <div className="mb-5">
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">Segment Details</h3>
               <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Name your audience and describe its business purpose.</p>
@@ -267,7 +293,7 @@ export default function SegmentationDetail() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all"
                 />
               </div>
               <div>
@@ -278,36 +304,38 @@ export default function SegmentationDetail() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all"
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Filter Builder */}
-          <FilterBuilder filters={filters} onChange={setFilters} />
+          <motion.div variants={fadeUp}>
+            <FilterBuilder filters={filters} onChange={setFilters} />
+          </motion.div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 pt-2">
-            <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
+          <motion.div variants={fadeUp} className="flex items-center gap-4 pt-2">
+            <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
               <Eye size={16} />
               Preview Data
             </button>
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary-50 text-primary-600">
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary-50 dark:bg-primary-500/15 text-primary-600 dark:text-primary-400">
               {segmentedContacts.length} contact(s) match this segment
             </span>
             <div className="flex-1" />
             <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-500 dark:bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors cursor-pointer">
               Update Segment
             </button>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* Tab: Segmented Customer List */}
       {activeTab === 'contacts' && (
         <div className="space-y-4">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-5">
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-5">
             <h3 className="text-base font-semibold text-slate-900 dark:text-white">Related Segmented Contacts</h3>
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5 mb-4">
               Search and sort related records without leaving the detail page.
@@ -319,20 +347,20 @@ export default function SegmentationDetail() {
                 placeholder="Search related records"
                 value={contactSearch}
                 onChange={(e) => { setContactSearch(e.target.value); setPage(1) }}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all"
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                  <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                     {contactColumns.map((col) => (
                       <th
                         key={col.key}
-                        className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3 cursor-pointer hover:text-slate-700 select-none"
+                        className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3 cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 select-none transition-colors"
                         onClick={() => handleSort(col.key)}
                       >
                         <div className="flex items-center gap-1.5">
@@ -352,15 +380,15 @@ export default function SegmentationDetail() {
                     pagedContacts.map((c) => (
                       <tr
                         key={c.id}
-                        className="border-b border-slate-50 dark:border-slate-800 last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                        className="border-b border-slate-50 dark:border-slate-800 last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
                         onClick={() => navigate(`/participant-data/${c.id}`)}
                       >
                         <td className="px-5 py-3">
-                          <span className="text-sm font-medium text-primary-600">{c.fullName}</span>
+                          <span className="text-sm font-medium text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">{c.fullName}</span>
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-1.5">
-                            <Mail size={13} className="text-slate-300 flex-shrink-0" />
+                            <Mail size={13} className="text-slate-300 dark:text-slate-600 flex-shrink-0" />
                             <span className="text-sm text-slate-500 dark:text-slate-400 truncate max-w-[180px]">{c.email}</span>
                           </div>
                         </td>
@@ -382,27 +410,27 @@ export default function SegmentationDetail() {
             {/* Pagination */}
             <div className="border-t border-slate-100 dark:border-slate-800 px-5 py-3 flex items-center justify-between">
               <p className="text-sm text-slate-400 dark:text-slate-500">
-                Showing {Math.min((page - 1) * PAGE_SIZE + 1, segmentedContacts.length)}–{Math.min(page * PAGE_SIZE, segmentedContacts.length)} of {segmentedContacts.length}
+                Showing {Math.min((page - 1) * PAGE_SIZE + 1, segmentedContacts.length)}&ndash;{Math.min(page * PAGE_SIZE, segmentedContacts.length)} of {segmentedContacts.length}
               </p>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <span className="text-sm text-slate-500 dark:text-slate-400 px-2">Page {page} of {totalPages || 1}</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400 px-2 tabular-nums">Page {page} of {totalPages || 1}</span>
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages || totalPages === 0}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
@@ -410,6 +438,6 @@ export default function SegmentationDetail() {
       {activeTab === 'comms' && (
         <SegmentCommTab segmentId={segment.id} />
       )}
-    </div>
+    </motion.div>
   )
 }

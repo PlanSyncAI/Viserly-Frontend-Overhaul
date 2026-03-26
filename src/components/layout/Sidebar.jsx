@@ -17,8 +17,10 @@ import {
   Bell,
   Moon,
   Sun,
+  Target,
 } from 'lucide-react'
 import { useTheme } from '../../lib/useTheme'
+import { useToast } from '../ui/Toast'
 import GlobalSearch from './GlobalSearch'
 
 const navSections = [
@@ -42,6 +44,12 @@ const navSections = [
     items: [
       { label: 'My Campaigns', icon: Megaphone, path: '/campaigns' },
       { label: 'Communication History', icon: History, path: '/communication-history' },
+    ],
+  },
+  {
+    title: 'Pipeline',
+    items: [
+      { label: 'Deal Pipeline', icon: Target, path: '/pipeline' },
     ],
   },
   {
@@ -128,17 +136,18 @@ function SidebarButton({ icon: Icon, label, collapsed, badge, onClick, ...rest }
 export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation()
   const { dark, toggle } = useTheme()
+  const { showToast } = useToast()
 
   return (
     <motion.aside
-      className="h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 sticky top-0 z-40"
+      className="h-screen bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col flex-shrink-0 sticky top-0 z-40"
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
     >
       {/* Logo */}
       <div className="h-14 flex items-center px-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-sm shadow-primary-500/20">
             <span className="text-white font-bold text-sm">V</span>
           </div>
           <AnimatePresence>
@@ -190,7 +199,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                   icon={item.icon}
                   label={item.label}
                   collapsed={collapsed}
-                  isActive={location.pathname === item.path}
+                  isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
                 />
               ))}
             </div>
@@ -217,7 +226,7 @@ export default function Sidebar({ collapsed, onToggle }) {
               label="Notifications"
               collapsed={collapsed}
               badge
-              onClick={() => {}}
+              onClick={() => showToast('No new notifications', 'info')}
             />
           </div>
         </div>
