@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx vite:*)",
+      "Bash(grep -E \"\\\\.\\(config|css|json\\)$\")",
+      "Bash(find /Users/cameronabernethy/Documents/Viserly-Frontend-Design/public -type f \\\\\\(-name *.svg -o -name *.png -o -name *.jpg -o -name *.jpeg -o -name *.gif -o -name *.webp \\\\\\))",
+      "Bash(awk -F',' '{print NF}' /Users/cameronabernethy/Documents/Viserly-Frontend-Design/public/data/contacts.csv)"
+    ]
+  }
+}
