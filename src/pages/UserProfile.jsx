@@ -80,7 +80,7 @@ function Section({ icon: Icon, gradient, hoverGradient, glowColor, title, descri
       </div>
 
       <div className={`group relative rounded-2xl p-[1px] bg-gradient-to-br from-slate-200/80 via-slate-100/50 to-slate-200/80 dark:from-slate-700/80 dark:via-slate-800/50 dark:to-slate-700/80 ${hoverGradient} transition-all duration-300`}>
-        <div className="relative bg-white dark:bg-slate-900 rounded-[15px] p-6 overflow-hidden">
+        <div className="relative bg-white dark:bg-slate-900 rounded-[15px] p-4 md:p-6 overflow-hidden">
           <div className={`absolute top-0 right-0 w-32 h-32 ${glowColor} rounded-full blur-2xl -translate-y-1/2 translate-x-1/3`} />
           <div className="relative">
             {children}
@@ -218,7 +218,7 @@ function TemplatesTab() {
         className="group relative rounded-2xl p-[1px] bg-gradient-to-br from-slate-200/80 via-slate-100/50 to-slate-200/80 dark:from-slate-700/80 dark:via-slate-800/50 dark:to-slate-700/80 hover:from-blue-300/60 hover:via-blue-200/30 hover:to-blue-300/60 transition-all duration-300"
         variants={fadeUp}
       >
-        <div className="relative bg-white dark:bg-slate-900 rounded-[15px] p-6 space-y-5 overflow-hidden">
+        <div className="relative bg-white dark:bg-slate-900 rounded-[15px] p-4 md:p-6 space-y-5 overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/40 dark:bg-blue-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3" />
           <div className="relative space-y-5">
             {TRIGGER_TEMPLATE_MAPPINGS.map((trigger, idx) => (
@@ -296,7 +296,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="p-8 mx-auto space-y-8">
+    <div className="p-4 md:p-8 mx-auto space-y-6 md:space-y-8">
 
       {/* ═══ Hero Header ═══ */}
       <motion.div
@@ -309,7 +309,7 @@ export default function UserProfile() {
         <div className="absolute top-0 right-0 w-80 h-80 bg-primary-400/10 dark:bg-primary-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/10 dark:bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
 
-        <div className="relative flex items-center gap-5">
+        <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-5">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-400 flex items-center justify-center shadow-lg shadow-primary-500/20">
             <span className="text-xl font-bold text-white">CA</span>
           </div>
@@ -322,7 +322,7 @@ export default function UserProfile() {
             </motion.p>
           </div>
 
-          <motion.div className="ml-auto flex items-center gap-2" variants={fadeUp} custom={2}>
+          <motion.div className="sm:ml-auto flex items-center gap-2 flex-wrap" variants={fadeUp} custom={2}>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-white/80 dark:border-slate-700/80 shadow-sm">
               <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
                 <Shield size={12} className="text-emerald-500" />
@@ -346,8 +346,8 @@ export default function UserProfile() {
       </motion.div>
 
       {/* ═══ Tabs ═══ */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
-        <div className="flex gap-0">
+      <div className="border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+        <div className="flex gap-0 whitespace-nowrap">
           {TABS.map((tab) => {
             const Icon = tab.icon
             return (
@@ -454,7 +454,7 @@ export default function UserProfile() {
                 <label className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
                   Delivery Days
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {DAYS.map((day) => {
                     const active = deliveryDays.includes(day)
                     return (

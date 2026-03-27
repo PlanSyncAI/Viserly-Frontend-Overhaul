@@ -78,7 +78,7 @@ export default function CommunicationHistory() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -86,7 +86,7 @@ export default function CommunicationHistory() {
       {/* ── Hero Header ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-purple-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-purple-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-purple-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-purple-500/5 border border-slate-200/60 dark:border-slate-800 px-4 sm:px-8 py-6 sm:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.06),transparent_50%)]" />
         <div className="relative">
@@ -99,7 +99,7 @@ export default function CommunicationHistory() {
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg">
             Review all emails, triggers, and campaign communications across your book of business.
           </p>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4">
             {[
               { label: 'Total Records', value: stats.total },
               { label: 'Sent', value: stats.sent },
@@ -116,7 +116,7 @@ export default function CommunicationHistory() {
       </motion.div>
 
       {/* ── KPI Cards ────────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="grid grid-cols-4 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {kpiCards.map((card) => {
           const colors = kpiColors[card.color]
           const Icon = card.icon
@@ -147,7 +147,7 @@ export default function CommunicationHistory() {
         <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
           Campaign Performance
         </h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {campaigns.map((c, idx) => {
             const maxVal = Math.max(c.stats.sent, 1)
             return (

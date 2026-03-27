@@ -168,7 +168,7 @@ export default function CampaignDetail() {
 
   return (
     <motion.div
-      className="p-8 max-w-[1400px] mx-auto space-y-6"
+      className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -186,12 +186,12 @@ export default function CampaignDetail() {
       {/* ═══ Hero Header ═══ */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-4 py-6 md:px-8 md:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.06),transparent_50%)]" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/10 dark:bg-primary-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
 
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col lg:flex-row items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
@@ -216,7 +216,7 @@ export default function CampaignDetail() {
             </div>
 
             {/* Context pills */}
-            <div className="flex items-center gap-2 mt-5">
+            <div className="flex flex-wrap items-center gap-2 mt-5">
               {campaign.segmentId ? (
                 <button
                   onClick={() => navigate(`/segmentations/${campaign.segmentId}`)}
@@ -292,7 +292,7 @@ export default function CampaignDetail() {
         <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
 
           {/* KPI Cards */}
-          <motion.div variants={fadeUp} className="grid grid-cols-3 gap-4">
+          <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {[
               { label: 'Sent', value: s.sent, icon: Send, color: 'blue', bg: 'bg-blue-50 dark:bg-blue-500/15', iconColor: 'text-blue-500' },
               { label: 'Delivered', value: s.delivered, icon: CheckCircle2, color: 'emerald', bg: 'bg-emerald-50 dark:bg-emerald-500/15', iconColor: 'text-emerald-500' },
@@ -306,7 +306,7 @@ export default function CampaignDetail() {
                 <motion.div
                   key={kpi.label}
                   whileHover={{ y: -2, boxShadow: '0 8px 25px -5px rgba(0,0,0,0.08)' }}
-                  className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 text-left overflow-hidden"
+                  className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-5 text-left overflow-hidden"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center`}>
@@ -326,9 +326,9 @@ export default function CampaignDetail() {
           </motion.div>
 
           {/* Engagement Funnel + Performance Rates */}
-          <motion.div variants={fadeUp} className="grid grid-cols-2 gap-5">
+          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Engagement Funnel */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-500/15 flex items-center justify-center">
                   <BarChart3 size={16} className="text-primary-500" />
@@ -345,7 +345,7 @@ export default function CampaignDetail() {
             </div>
 
             {/* Performance Rates */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
                   <TrendingUp size={16} className="text-emerald-500" />
@@ -384,7 +384,7 @@ export default function CampaignDetail() {
             <div className="bg-slate-50/80 dark:bg-slate-800/50 px-6 py-3 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Campaign Details</h3>
             </div>
-            <div className="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
               {[
                 { label: 'Created', value: formatDate(campaign.createdAt), icon: CalendarClock },
                 { label: 'Scheduled', value: formatDate(campaign.scheduledAt), icon: Clock },
@@ -507,7 +507,7 @@ export default function CampaignDetail() {
             return progress && (
               <motion.div
                 variants={fadeUp}
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-50 via-white to-emerald-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-emerald-500/5 border border-slate-200/60 dark:border-slate-800 p-6"
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-50 via-white to-emerald-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-emerald-500/5 border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -568,7 +568,7 @@ export default function CampaignDetail() {
                 )}
 
                 {/* Step card */}
-                <div className={`bg-white dark:bg-slate-900 rounded-2xl border p-5 transition-all ${
+                <div className={`bg-white dark:bg-slate-900 rounded-2xl border p-4 md:p-5 transition-all ${
                   isActive ? 'border-primary-300 dark:border-primary-500/40 ring-1 ring-primary-200 dark:ring-primary-500/20 shadow-sm shadow-primary-100 dark:shadow-none' :
                   isCompleted ? 'border-emerald-200 dark:border-emerald-500/30' :
                   'border-slate-200/60 dark:border-slate-800 opacity-60'

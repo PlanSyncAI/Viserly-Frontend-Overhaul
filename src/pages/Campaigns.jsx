@@ -134,7 +134,7 @@ export default function Campaigns() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -142,10 +142,10 @@ export default function Campaigns() {
       {/* ── Hero Header ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-4 sm:px-8 py-6 sm:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.06),transparent_50%)]" />
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function Campaigns() {
               Create, manage, and track your email campaigns. Monitor engagement and optimize your outreach.
             </p>
             {/* Inline badges */}
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4">
               {[
                 { label: 'Total', value: DUMMY_CAMPAIGNS.length },
                 { label: 'Active', value: DUMMY_CAMPAIGNS.filter((c) => c.status === 'Active').length },
@@ -182,7 +182,7 @@ export default function Campaigns() {
       </motion.div>
 
       {/* ── KPI Cards ────────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="grid grid-cols-4 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {[
           {
             label: 'Total Campaigns',
@@ -256,7 +256,7 @@ export default function Campaigns() {
           <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
             Active & Upcoming
           </h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {activeCampaigns.slice(0, 4).map((c) => (
               <motion.div
                 key={c.id}
@@ -304,7 +304,7 @@ export default function Campaigns() {
       )}
 
       {/* ── Search & Filter ──────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex items-center gap-3">
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input

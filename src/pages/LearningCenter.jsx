@@ -80,7 +80,7 @@ export default function LearningCenter() {
   const { showToast } = useToast()
   return (
     <motion.div
-      className="p-8 max-w-[1400px] mx-auto space-y-10"
+      className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-6 md:space-y-10"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"

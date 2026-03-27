@@ -222,7 +222,7 @@ function KanbanColumn({ stage, deals, onDealClick, isOver, selectedIds, onToggle
   return (
     <div
       ref={setNodeRef}
-      className={`w-[280px] flex-shrink-0 flex flex-col rounded-2xl border transition-all duration-200 ${
+      className={`w-[85vw] sm:w-[280px] flex-shrink-0 flex flex-col rounded-2xl border transition-all duration-200 ${
         isOver
           ? 'bg-primary-50/50 dark:bg-primary-500/5 border-primary-300 dark:border-primary-500/40 ring-1 ring-primary-200 dark:ring-primary-500/20'
           : 'bg-slate-50/50 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-800'
@@ -245,7 +245,7 @@ function KanbanColumn({ stage, deals, onDealClick, isOver, selectedIds, onToggle
       </div>
 
       {/* Cards */}
-      <div className="p-2.5 space-y-2.5 flex-1 overflow-y-auto max-h-[calc(100vh-420px)] min-h-[120px]">
+      <div className="p-2.5 space-y-2.5 flex-1 overflow-y-auto max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-420px)] min-h-[120px]">
         {deals.map((deal) => (
           <DraggableCard
             key={deal.id}
@@ -376,7 +376,7 @@ export default function KanbanBoard({ deals, stages = DEAL_STAGES, onStageChange
         <SelectionBar count={selectedIds.size} onClear={clearSelection} />
       )}
 
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <div className="flex gap-3 overflow-x-auto pb-2 kanban-scroll">
         {stages.map((stage) => (
           <KanbanColumn
             key={stage.key}

@@ -94,7 +94,7 @@ export default function CommHistoryTable({
   return (
     <div className="space-y-4">
       {/* Search + Filter */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -124,45 +124,45 @@ export default function CommHistoryTable({
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
                 <th
-                  className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
+                  className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
                   onClick={() => handleSort('sentAt')}
                 >
                   <div className="flex items-center gap-1">Date <SortIcon colKey="sentAt" /></div>
                 </th>
-                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                   Status
                 </th>
-                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                   Type
                 </th>
                 {showContact && (
                   <th
-                    className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
+                    className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
                     onClick={() => handleSort('contactName')}
                   >
                     <div className="flex items-center gap-1">Contact <SortIcon colKey="contactName" /></div>
                   </th>
                 )}
                 <th
-                  className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
+                  className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3 cursor-pointer hover:text-slate-700 select-none"
                   onClick={() => handleSort('templateName')}
                 >
                   <div className="flex items-center gap-1">Template <SortIcon colKey="templateName" /></div>
                 </th>
-                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                   Subject
                 </th>
                 {showCampaign && (
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                     Campaign
                   </th>
                 )}
                 {showSegment && (
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                     Segment
                   </th>
                 )}
-                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">
+                <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-4 py-3">
                   Sent By
                 </th>
               </tr>
@@ -180,19 +180,19 @@ export default function CommHistoryTable({
                     key={rec.id}
                     className="border-b border-slate-50 dark:border-slate-800 last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
                   >
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <td className="px-3 md:px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                       {formatDate(rec.sentAt)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 md:px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${COMM_STATUS_STYLES[rec.type] || 'bg-slate-100 text-slate-600'}`}>
                         {rec.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+                    <td className="px-3 md:px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
                       {rec.type}
                     </td>
                     {showContact && (
-                      <td className="px-4 py-3">
+                      <td className="px-3 md:px-4 py-3">
                         <button
                           onClick={() => navigate(`/participant-data/${rec.contactId}`)}
                           className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:underline cursor-pointer flex items-center gap-1"
@@ -203,19 +203,19 @@ export default function CommHistoryTable({
                         <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[200px]">{rec.contactEmail}</p>
                       </td>
                     )}
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
+                    <td className="px-3 md:px-4 py-3 text-sm text-slate-600 dark:text-slate-300 max-w-[200px] truncate">
                       {rec.templateName || '—'}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[220px] truncate">
+                    <td className="px-3 md:px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[220px] truncate">
                       {rec.subject || '—'}
                     </td>
                     {showCampaign && (
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                      <td className="px-3 md:px-4 py-3 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         {rec.campaignName || '—'}
                       </td>
                     )}
                     {showSegment && (
-                      <td className="px-4 py-3">
+                      <td className="px-3 md:px-4 py-3">
                         {rec.segmentId ? (
                           <button
                             onClick={() => navigate(`/segmentations/${rec.segmentId}`)}
@@ -228,7 +228,7 @@ export default function CommHistoryTable({
                         )}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <td className="px-3 md:px-4 py-3 text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
                       {rec.sentBy}
                     </td>
                   </tr>
@@ -240,7 +240,7 @@ export default function CommHistoryTable({
 
         {/* Pagination */}
         {filtered.length > PAGE_SIZE && (
-          <div className="border-t border-slate-100 px-4 py-3 flex items-center justify-between">
+          <div className="border-t border-slate-100 px-4 py-3 flex flex-col sm:flex-row items-center gap-2 sm:justify-between">
             <p className="text-sm text-slate-400 dark:text-slate-500">
               Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
             </p>

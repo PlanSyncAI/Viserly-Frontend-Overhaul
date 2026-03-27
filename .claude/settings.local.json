@@ -11,7 +11,11 @@
       "Bash(vercel --prod)",
       "Bash(vercel --prod --yes)",
       "Bash(vercel --prod --yes --name viserly-frontend)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(grep -E \"\\\\.jsx$|\\\\.tsx$\")",
+      "Bash(find /Users/cameronabernethy/Documents/Viserly-Frontend-Design -name tailwind* -o -name postcss*)",
+      "Bash(ls -1 /Users/cameronabernethy/Documents/Viserly-Frontend-Design/src/pages/*.jsx)",
+      "Bash(xargs -I {} basename {})"
     ]
   }
 }

@@ -121,7 +121,7 @@ export default function PlanData() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -129,10 +129,10 @@ export default function PlanData() {
       {/* ── Hero Header ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-emerald-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-emerald-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-emerald-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-emerald-500/5 border border-slate-200/60 dark:border-slate-800 px-4 sm:px-8 py-6 sm:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.06),transparent_50%)]" />
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
@@ -143,7 +143,7 @@ export default function PlanData() {
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg">
               Manage account records, link payroll providers, and track plan data across your book of business.
             </p>
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4">
               {[
                 { label: 'Total', value: stats.total },
                 { label: 'With Phone', value: stats.withPhone },
@@ -166,7 +166,7 @@ export default function PlanData() {
       </motion.div>
 
       {/* ── KPI Cards ────────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="grid grid-cols-4 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {kpiCards.map((card) => {
           const colors = kpiColors[card.color]
           const Icon = card.icon
@@ -198,7 +198,7 @@ export default function PlanData() {
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quick Actions</h3>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Run common account workflows without leaving this page.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 dark:bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors cursor-pointer">
             <Plus size={16} />Create Account
           </button>
@@ -218,7 +218,7 @@ export default function PlanData() {
       </motion.div>
 
       {/* ── Search & Filter ──────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex items-center gap-4">
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input

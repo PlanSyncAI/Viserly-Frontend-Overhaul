@@ -19,7 +19,7 @@ export default function FilterBuilder({ filters, onChange }) {
   const activeCount = filters.filter((f) => f.field && f.operator).length
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">Audience Filters</h3>
@@ -40,7 +40,7 @@ export default function FilterBuilder({ filters, onChange }) {
             key={idx}
             className="flex items-start gap-3 p-4 rounded-xl border-l-3 border-l-primary-400 bg-slate-50/50 border border-slate-100"
           >
-            <div className="grid grid-cols-3 gap-3 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
               {/* Field */}
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">Field</label>

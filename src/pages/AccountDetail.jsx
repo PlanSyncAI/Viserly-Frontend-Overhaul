@@ -464,7 +464,7 @@ export default function AccountDetail() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -482,7 +482,7 @@ export default function AccountDetail() {
       {/* Profile Header */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+        className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50/40 via-transparent to-emerald-50/20 dark:from-primary-500/5 dark:via-transparent dark:to-emerald-500/5" />
         <div className="relative flex items-center gap-4">
@@ -517,12 +517,12 @@ export default function AccountDetail() {
       </motion.div>
 
       {/* Quick Actions */}
-      <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5">
+      <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-5">
         <div className="mb-3">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quick Actions</h3>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Run common account workflows without leaving this page.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => navigate('/plan-data')}
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 dark:bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors cursor-pointer"
@@ -586,7 +586,7 @@ export default function AccountDetail() {
         <div className="space-y-6">
           <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <SectionHeader title="Account Information" color="primary" icon={Building2} />
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Account Name" value={account.name} />
               <Field label="Owner" value={account.owner} />
               <Field label="Number of Employees" value={account.employees?.toString()} />
@@ -603,7 +603,7 @@ export default function AccountDetail() {
 
           <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <SectionHeader title="Account Details" color="blue" icon={Globe} />
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Recordkeeper" value={account.recordkeeper} />
               <Field label="Recordkeeper Website" value={account.recordkeeperWebsite} />
               <Field label="Plan Name" value={account.planName} />
@@ -622,7 +622,7 @@ export default function AccountDetail() {
 
           <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <SectionHeader title="Address Information" color="emerald" icon={MapPin} />
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Billing Address" value={account.billingAddress} />
               <Field label="Shipping Address" value={account.shippingAddress} />
             </div>
@@ -630,7 +630,7 @@ export default function AccountDetail() {
 
           <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <SectionHeader title="System Information" color="dark" icon={Settings} />
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Created By" value={account.createdBy} />
               <Field label="Last Modified By" value={account.lastModifiedBy} />
             </div>

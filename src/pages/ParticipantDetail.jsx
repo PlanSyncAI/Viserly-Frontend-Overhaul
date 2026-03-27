@@ -73,14 +73,14 @@ function CommHistoryTab({ contactId }) {
 
   return (
     <div className="space-y-4">
-      <motion.div variants={fadeUp} className="grid grid-cols-5 gap-3">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {statCards.map((s) => {
           const Icon = s.icon
           return (
             <motion.div
               key={s.label}
               whileHover={{ y: -2, boxShadow: '0 8px 25px -5px rgba(0,0,0,0.08)' }}
-              className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 text-left overflow-hidden"
+              className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-5 text-left overflow-hidden"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center`}>
@@ -131,7 +131,7 @@ export default function ParticipantDetail() {
 
   return (
     <motion.div
-      className="p-8 max-w-[1400px] mx-auto space-y-6"
+      className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -156,8 +156,8 @@ export default function ParticipantDetail() {
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-400/10 dark:bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
         <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-purple-400/10 dark:bg-purple-500/8 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
 
-        <div className="relative px-8 py-8">
-          <div className="flex items-start justify-between">
+        <div className="relative px-4 py-6 md:px-8 md:py-8">
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-4 lg:gap-0">
             <div className="flex items-start gap-5">
               {/* Avatar */}
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/20">
@@ -182,7 +182,7 @@ export default function ParticipantDetail() {
                   </div>
                 </div>
                 {/* Stat pills */}
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex flex-wrap items-center gap-2 mt-4">
                   <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-white/80 dark:border-slate-700/80 shadow-sm">
                     <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
                       <DollarSign size={12} className="text-emerald-500" />
@@ -298,7 +298,7 @@ export default function ParticipantDetail() {
 
       {/* ═══ Tab: Contact Information ═══ */}
       {activeTab === 'contact' && (
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-4 md:space-y-6">
           {/* Contact Profile */}
           <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
             <div className="bg-slate-50/80 dark:bg-slate-800/50 px-6 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
@@ -307,7 +307,7 @@ export default function ParticipantDetail() {
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Contact Profile</h3>
             </div>
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Account" value={contact.account} />
               <Field label="User Status" value={contact.status} />
               <Field label="Contact Tags" value={contact.contactTags} />
@@ -336,7 +336,7 @@ export default function ParticipantDetail() {
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Payroll Insights</h3>
             </div>
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Employee ID" value={contact.employeeId} />
               <Field label="Date of Separation" value={contact.dateOfSeparation} />
               <Field label="Employment Status" value={contact.employmentActive ? 'Active' : 'Inactive'} />
@@ -366,7 +366,7 @@ export default function ParticipantDetail() {
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Plan Insights</h3>
             </div>
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Eligibility Status" value={contact.eligibilityStatus} icon={Shield} />
               <Field label="Pre-Tax Contribution Rate $" value={contact.preTaxContribDollar} />
               <Field label="Entry Date" value={contact.entryDate ? new Date(contact.entryDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'} icon={Calendar} />
@@ -386,7 +386,7 @@ export default function ParticipantDetail() {
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Address Information</h3>
             </div>
-            <div className="p-5 grid grid-cols-2 gap-3">
+            <div className="p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field
                 label="Mailing Address"
                 value={

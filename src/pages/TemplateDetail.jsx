@@ -151,7 +151,7 @@ export default function TemplateDetail() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -166,18 +166,18 @@ export default function TemplateDetail() {
         Back to Templates
       </motion.button>
 
-      <div className="flex gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-start">
         {/* ── Left Column ──────────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="flex-1 min-w-0 space-y-4 md:space-y-6">
 
           {/* Template Header Card */}
           <motion.div
             variants={fadeUp}
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <div className="flex items-center gap-2.5 mb-2">
+                <div className="flex flex-wrap items-center gap-2.5 mb-2">
                   <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {template.name}
                   </h1>
@@ -271,7 +271,7 @@ export default function TemplateDetail() {
             </div>
 
             {/* Email chrome frame */}
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <div className="max-w-2xl mx-auto">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
                   {/* Email header bar */}
@@ -303,10 +303,10 @@ export default function TemplateDetail() {
           {/* ── Template Details Card ──────────────────────────────── */}
           <motion.div
             variants={fadeUp}
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6"
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
           >
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Template Details</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: 'Template Name', value: template.name },
                 { label: 'Subject Line', value: template.subject },
@@ -327,7 +327,7 @@ export default function TemplateDetail() {
         </div>
 
         {/* ── Right Sidebar ────────────────────────────────────────── */}
-        <div className="w-72 flex-shrink-0 space-y-4">
+        <div className="w-full lg:w-72 lg:flex-shrink-0 space-y-4">
 
           {/* Action Buttons */}
           <motion.div variants={fadeUp} className="space-y-2">
@@ -384,7 +384,7 @@ export default function TemplateDetail() {
           {/* ── Merge Fields Panel ──────────────────────────────────── */}
           <motion.div
             variants={fadeUp}
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-5 space-y-4"
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-5 space-y-4"
           >
             <div>
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">Merge Fields</h4>

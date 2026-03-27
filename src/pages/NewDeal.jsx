@@ -103,7 +103,7 @@ export default function NewDeal() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -137,12 +137,12 @@ export default function NewDeal() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* ── Main Form (2 cols) ──────────────────────────────────── */}
         <motion.form
           variants={fadeUp}
           onSubmit={handleSubmit}
-          className="col-span-2 space-y-6"
+          className="lg:col-span-2 space-y-6"
         >
           {/* Section: Participant */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
@@ -150,7 +150,7 @@ export default function NewDeal() {
               <User size={15} className="text-slate-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Participant</span>
             </div>
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               {selectedParticipant ? (
                 <div className="flex items-center gap-4 px-4 py-3.5 bg-primary-50/50 dark:bg-primary-500/5 border border-primary-200/60 dark:border-primary-500/20 rounded-xl">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-sm shadow-primary-500/20">
@@ -214,8 +214,8 @@ export default function NewDeal() {
               <DollarSign size={15} className="text-slate-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Deal Details</span>
             </div>
-            <div className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 md:p-6 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Deal Value ($)</label>
                   <input
@@ -233,7 +233,7 @@ export default function NewDeal() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Stage</label>
                   <select value={stage} onChange={(e) => setStage(e.target.value)} className={selectClass}>
@@ -270,8 +270,8 @@ export default function NewDeal() {
               <CalendarClock size={15} className="text-slate-400" />
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Next Steps</span>
             </div>
-            <div className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 md:p-6 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Next Action</label>
                   <input

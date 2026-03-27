@@ -365,7 +365,7 @@ export default function ParticipantData() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -373,10 +373,10 @@ export default function ParticipantData() {
       {/* ── Hero Header ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-white to-primary-50/40 dark:from-blue-500/5 dark:via-slate-900 dark:to-primary-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-white to-primary-50/40 dark:from-blue-500/5 dark:via-slate-900 dark:to-primary-500/5 border border-slate-200/60 dark:border-slate-800 px-4 sm:px-8 py-6 sm:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.06),transparent_50%)]" />
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
@@ -387,7 +387,7 @@ export default function ParticipantData() {
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg">
               Manage participant records, analyze demographics, and identify wealth management opportunities.
             </p>
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4">
               {[
                 { label: 'Total', value: stats.total },
                 { label: 'Active', value: stats.active },
@@ -401,7 +401,7 @@ export default function ParticipantData() {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button onClick={() => navigate('/import-data')} className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
               <Upload size={16} />
               Import
@@ -415,7 +415,7 @@ export default function ParticipantData() {
       </motion.div>
 
       {/* ── KPI Cards ────────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="grid grid-cols-4 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {[
           {
             label: 'Total Contacts',
@@ -497,7 +497,7 @@ export default function ParticipantData() {
 
       {/* ═══ Stat Breakdowns ═══ */}
       {showBreakdowns && (
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
           <StatBreakdown id="bd-contacts" title="Contacts by Account" description="Distribution of participants across plan accounts">
             <HBarChart data={stats.accountBreakdown} maxValue={Math.max(...stats.accountBreakdown.map((d) => d.value))} color="#635BFF" />
           </StatBreakdown>
@@ -583,7 +583,7 @@ export default function ParticipantData() {
       )}
 
       {/* ── Search & Filter ──────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex items-center gap-3">
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input

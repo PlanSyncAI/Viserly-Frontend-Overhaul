@@ -123,7 +123,7 @@ export default function DealDetail() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -141,11 +141,11 @@ export default function DealDetail() {
       {/* Deal header */}
       <motion.div
         variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
       >
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-3 mb-1">
+            <div className="flex flex-wrap items-center gap-3 mb-1">
               <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{deal.participantName}</h1>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${STAGE_STYLES[deal.stage]}`}>
                 {getStageLabel(deal.stage)}
@@ -200,9 +200,9 @@ export default function DealDetail() {
 
       {/* ── Tab: Overview ──────────────────────────────────────── */}
       {activeTab === 'overview' && (
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-4 md:space-y-6">
           {/* Info grid */}
-          <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3">
+          <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <InfoField label="Participant" value={deal.participantName} icon={User} link={`/participant-data/${deal.participantId}`} navigate={navigate} />
             <InfoField label="Account" value={deal.accountName} icon={Building2} />
             <InfoField label="Assigned To" value={deal.assignedTo} icon={User} />
@@ -215,9 +215,9 @@ export default function DealDetail() {
           </motion.div>
 
           {/* Deal value + stage progression */}
-          <motion.div variants={fadeUp} className="grid grid-cols-2 gap-6">
+          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Deal value */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Deal Value</h3>
               <div className="space-y-4">
                 <div>
@@ -240,7 +240,7 @@ export default function DealDetail() {
             </div>
 
             {/* Stage progression */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-6">Stage Progression</h3>
               <div className="space-y-3">
                 {DEAL_STAGES.map((stage, idx) => {
@@ -273,7 +273,7 @@ export default function DealDetail() {
 
           {/* Notes */}
           {deal.notes && (
-            <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-6">
+            <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Notes</h3>
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-4">
                 <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{deal.notes}</p>
@@ -298,7 +298,7 @@ export default function DealDetail() {
             }
             return (
               <>
-                <motion.div variants={fadeUp} className="grid grid-cols-5 gap-3">
+                <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   {[
                     { label: 'Total Sent', value: commStats.sent, color: 'blue' },
                     { label: 'Delivered', value: commStats.delivered, color: 'emerald' },
@@ -337,7 +337,7 @@ export default function DealDetail() {
       {activeTab === 'activity' && (
         <motion.div
           variants={fadeUp}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
         >
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-6">Deal Activity</h3>
           <div className="relative">
@@ -372,8 +372,8 @@ export default function DealDetail() {
             <div className="text-center py-12 text-sm text-slate-400">Loading participant data...</div>
           ) : participant ? (
             <>
-              <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
-                <div className="flex items-center justify-between mb-4">
+              <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Participant Profile</h3>
                   <button
                     onClick={() => navigate(`/participant-data/${deal.participantId}`)}
@@ -382,7 +382,7 @@ export default function DealDetail() {
                     View Full Profile <ArrowLeft size={12} className="rotate-180" />
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Field label="Full Name" value={participant.fullName} />
                   <Field label="Email" value={participant.email} />
                   <Field label="Phone" value={participant.phone} />

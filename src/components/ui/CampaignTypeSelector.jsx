@@ -41,7 +41,7 @@ const colorMap = {
 
 export default function CampaignTypeSelector({ value, onChange }) {
   return (
-    <div className="grid grid-cols-2 gap-5 max-w-2xl mx-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 max-w-2xl mx-auto">
       {types.map((type) => {
         const Icon = type.icon
         const colors = colorMap[type.color]
@@ -53,7 +53,7 @@ export default function CampaignTypeSelector({ value, onChange }) {
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onChange(type.key)}
-            className={`relative text-left p-6 rounded-2xl border-2 transition-all cursor-pointer ${
+            className={`relative text-left p-4 sm:p-6 rounded-2xl border-2 transition-all cursor-pointer ${
               selected
                 ? `${colors.selectedBorder} ${colors.selectedBg} ring-2 ${colors.selectedRing}`
                 : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'

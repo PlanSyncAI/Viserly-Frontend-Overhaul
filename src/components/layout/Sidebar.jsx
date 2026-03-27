@@ -13,11 +13,11 @@ import {
   GraduationCap,
   ChevronsLeft,
   ChevronsRight,
-  Search,
   Bell,
   Moon,
   Sun,
   Target,
+  X,
 } from 'lucide-react'
 import { useTheme } from '../../lib/useTheme'
 import { useToast } from '../ui/Toast'
@@ -61,7 +61,7 @@ const navSections = [
   },
 ]
 
-function SidebarLink({ icon: Icon, label, collapsed, isActive, ...props }) {
+function SidebarLink({ icon: Icon, label, collapsed, isActive, onNavigate, ...props }) {
   return (
     <NavLink
       className={`
@@ -73,6 +73,7 @@ function SidebarLink({ icon: Icon, label, collapsed, isActive, ...props }) {
         }
       `}
       title={collapsed ? label : undefined}
+      onClick={() => onNavigate?.()}
       {...props}
     >
       <Icon
@@ -133,37 +134,33 @@ function SidebarButton({ icon: Icon, label, collapsed, badge, onClick, ...rest }
   )
 }
 
-export default function Sidebar({ collapsed, onToggle }) {
+function SidebarContent({ collapsed, onToggle, mobile, onNavigate }) {
   const location = useLocation()
   const { dark, toggle } = useTheme()
   const { showToast } = useToast()
 
   return (
-    <motion.aside
-      className="h-screen bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col flex-shrink-0 sticky top-0 z-40"
-      animate={{ width: collapsed ? 72 : 260 }}
-      transition={{ duration: 0.2, ease: 'easeInOut' }}
-    >
+    <>
       {/* Logo */}
-      <div className="h-14 flex items-center px-5 border-b border-slate-100 dark:border-slate-800">
+      <div className="h-14 flex items-center justify-between px-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-sm shadow-primary-500/20">
             <span className="text-white font-bold text-sm">V</span>
           </div>
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.15 }}
-                className="font-semibold text-slate-900 dark:text-white text-lg tracking-tight whitespace-nowrap overflow-hidden"
-              >
-                Viserly
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {!collapsed && (
+            <span className="font-semibold text-slate-900 dark:text-white text-lg tracking-tight whitespace-nowrap">
+              Viserly
+            </span>
+          )}
         </div>
+        {mobile && (
+          <button
+            onClick={onNavigate}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <X size={18} strokeWidth={2} />
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -200,6 +197,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                   label={item.label}
                   collapsed={collapsed}
                   isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
+                  onNavigate={onNavigate}
                 />
               ))}
             </div>
@@ -234,23 +232,25 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       {/* Bottom: collapse toggle + user (always visible, not scrollable) */}
       <div className="border-t border-slate-100 dark:border-slate-800 p-3 space-y-1">
-        {/* Collapse toggle */}
-        <button
-          onClick={onToggle}
-          className={`
-            w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer
-            ${collapsed ? 'justify-center px-0 py-2.5 mx-1' : 'px-3 py-2'}
-          `}
-        >
-          {collapsed ? (
-            <ChevronsRight size={20} strokeWidth={1.75} />
-          ) : (
-            <>
-              <ChevronsLeft size={20} strokeWidth={1.75} />
-              <span className="text-[13.5px]">Collapse</span>
-            </>
-          )}
-        </button>
+        {/* Collapse toggle — hidden on mobile */}
+        {!mobile && (
+          <button
+            onClick={onToggle}
+            className={`
+              w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer
+              ${collapsed ? 'justify-center px-0 py-2.5 mx-1' : 'px-3 py-2'}
+            `}
+          >
+            {collapsed ? (
+              <ChevronsRight size={20} strokeWidth={1.75} />
+            ) : (
+              <>
+                <ChevronsLeft size={20} strokeWidth={1.75} />
+                <span className="text-[13.5px]">Collapse</span>
+              </>
+            )}
+          </button>
+        )}
 
         {/* User profile */}
         <NavLink
@@ -259,6 +259,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             ${collapsed ? 'justify-center p-1.5' : 'px-3 py-2'}
           `}
           title={collapsed ? 'Cameron Abernethy' : undefined}
+          onClick={() => onNavigate?.()}
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-semibold">CA</span>
@@ -279,6 +280,26 @@ export default function Sidebar({ collapsed, onToggle }) {
           </AnimatePresence>
         </NavLink>
       </div>
+    </>
+  )
+}
+
+export default function Sidebar({ collapsed, onToggle, mobile, onNavigate }) {
+  if (mobile) {
+    return (
+      <aside className="h-full bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col w-[280px]">
+        <SidebarContent collapsed={false} onToggle={onToggle} mobile onNavigate={onNavigate} />
+      </aside>
+    )
+  }
+
+  return (
+    <motion.aside
+      className="h-screen bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 flex flex-col flex-shrink-0 sticky top-0 z-40"
+      animate={{ width: collapsed ? 72 : 260 }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+    >
+      <SidebarContent collapsed={collapsed} onToggle={onToggle} />
     </motion.aside>
   )
 }

@@ -25,7 +25,7 @@ export const card = {
 // ─── Text ──────────────────────────────────────────────────────────────────────
 export const text = {
   /** Page title — large bold */
-  title: 'text-2xl font-bold text-slate-900 dark:text-white tracking-tight',
+  title: 'text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight',
   /** Section heading */
   heading: 'text-base font-bold text-slate-900 dark:text-white',
   /** Card or item heading — smaller, semibold */
@@ -41,9 +41,9 @@ export const text = {
   /** Clickable link text */
   link: 'text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300',
   /** Large stat number */
-  stat: 'text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight tabular-nums',
+  stat: 'text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight tabular-nums',
   /** Medium stat number */
-  statMd: 'text-2xl font-bold text-slate-900 dark:text-white tracking-tight tabular-nums',
+  statMd: 'text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight tabular-nums',
   /** Small stat number */
   statSm: 'text-lg font-bold text-slate-900 dark:text-white tabular-nums',
 }
@@ -51,11 +51,11 @@ export const text = {
 // ─── Buttons ───────────────────────────────────────────────────────────────────
 export const btn = {
   /** Primary action button */
-  primary: 'inline-flex items-center gap-2 px-5 py-2.5 bg-primary-500 dark:bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors cursor-pointer',
+  primary: 'inline-flex items-center gap-2 px-4 md:px-5 py-2.5 bg-primary-500 dark:bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-colors cursor-pointer',
   /** Secondary / outline button */
-  secondary: 'inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer',
+  secondary: 'inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer',
   /** Danger / destructive button */
-  danger: 'inline-flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors cursor-pointer',
+  danger: 'inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors cursor-pointer',
   /** Ghost button (no background) */
   ghost: 'inline-flex items-center gap-1 text-xs font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer',
   /** Icon-only button */
@@ -79,15 +79,15 @@ export const table = {
   /** Table header row */
   thead: 'border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50',
   /** Table header cell */
-  th: 'text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3 cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 select-none',
+  th: 'text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-3 md:px-5 py-3 cursor-pointer hover:text-slate-700 dark:hover:text-slate-200 select-none',
   /** Table body row */
   tr: 'border-b border-slate-50 dark:border-slate-800 last:border-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors',
   /** Table cell — standard */
-  td: 'px-5 py-3 text-sm text-slate-600 dark:text-slate-300',
+  td: 'px-3 md:px-5 py-3 text-sm text-slate-600 dark:text-slate-300',
   /** Table cell — muted */
-  tdMuted: 'px-5 py-3 text-sm text-slate-400 dark:text-slate-500',
+  tdMuted: 'px-3 md:px-5 py-3 text-sm text-slate-400 dark:text-slate-500',
   /** Pagination footer */
-  pagination: 'border-t border-slate-100 dark:border-slate-800 px-5 py-3 flex items-center justify-between',
+  pagination: 'border-t border-slate-100 dark:border-slate-800 px-3 md:px-5 py-3 flex flex-col sm:flex-row items-center gap-2 sm:justify-between',
   /** Pagination text */
   paginationText: 'text-sm text-slate-400 dark:text-slate-500',
   /** Empty state row */
@@ -122,11 +122,11 @@ export const iconBox = {
 // ─── Tabs ──────────────────────────────────────────────────────────────────────
 export const tabs = {
   /** Tab bar container */
-  bar: 'border-b border-slate-200 dark:border-slate-700',
+  bar: 'border-b border-slate-200 dark:border-slate-700 overflow-x-auto',
   /** Active tab */
-  active: 'px-5 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 cursor-pointer transition-colors',
+  active: 'px-3 md:px-5 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 cursor-pointer transition-colors whitespace-nowrap',
   /** Inactive tab */
-  inactive: 'px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors',
+  inactive: 'px-3 md:px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors whitespace-nowrap',
 }
 
 // ─── Dividers ──────────────────────────────────────────────────────────────────
@@ -139,11 +139,32 @@ export const divider = {
 
 // ─── Section Headers (colored banner style) ────────────────────────────────────
 export const sectionHeader = {
-  primary: 'bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl',
-  emerald: 'bg-emerald-500 dark:bg-emerald-600 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl',
-  blue: 'bg-blue-500 dark:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl',
-  amber: 'bg-amber-500 dark:bg-amber-600 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl',
-  dark: 'bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold px-5 py-2.5 rounded-t-xl',
+  primary: 'bg-primary-500 dark:bg-primary-600 text-white text-sm font-semibold px-3 md:px-5 py-2.5 rounded-t-xl',
+  emerald: 'bg-emerald-500 dark:bg-emerald-600 text-white text-sm font-semibold px-3 md:px-5 py-2.5 rounded-t-xl',
+  blue: 'bg-blue-500 dark:bg-blue-600 text-white text-sm font-semibold px-3 md:px-5 py-2.5 rounded-t-xl',
+  amber: 'bg-amber-500 dark:bg-amber-600 text-white text-sm font-semibold px-3 md:px-5 py-2.5 rounded-t-xl',
+  dark: 'bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold px-3 md:px-5 py-2.5 rounded-t-xl',
+}
+
+// ─── Responsive Layout Helpers ─────────────────────────────────────────────────
+export const layout = {
+  /** Standard page wrapper */
+  page: 'p-4 md:p-8 mx-auto space-y-4 md:space-y-6',
+  /** Page wrapper with more vertical spacing */
+  pageWide: 'p-4 md:p-8 mx-auto space-y-6 md:space-y-8',
+}
+
+export const grid = {
+  /** 4-column stat cards */
+  stats4: 'grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4',
+  /** 5-column stat cards */
+  stats5: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3',
+  /** 2-column layout */
+  cols2: 'grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5',
+  /** 3-column layout */
+  cols3: 'grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5',
+  /** 4-column layout */
+  cols4: 'grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4',
 }
 
 // ─── Utility: merge classes ────────────────────────────────────────────────────

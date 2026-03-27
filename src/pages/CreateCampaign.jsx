@@ -61,7 +61,7 @@ function StepType({ value, onChange }) {
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">How do you want to reach your audience?</h2>
         <p className="text-sm text-slate-400 dark:text-slate-500">Choose the campaign type that fits your goal.</p>
       </div>
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {types.map((t) => {
           const Icon = t.icon; const c = colors[t.color]; const sel = value === t.key
           return (
@@ -228,7 +228,7 @@ function StepAudience({ segmentId, setSegmentId }) {
         <input type="text" placeholder="Search segments..." value={search} onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-300 transition-all" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {filtered.map((seg) => {
           const sel = segmentId === seg.id
           return (
@@ -325,7 +325,7 @@ function StepContentSingle({ templateId, setTemplateId, mode, setMode, customSub
         <button onClick={() => setMode('template')} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${mode === 'template' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}><FileText size={15} /> Use Template</button>
         <button onClick={() => setMode('custom')} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${mode === 'custom' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}><Sparkles size={15} /> Write Custom</button>
       </div>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {mode === 'template' ? (
             <>
@@ -454,7 +454,7 @@ function StepReviewSend({ campaignType, segmentId, templateId, mode, customSubje
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Review & Launch</h2>
         <p className="text-sm text-slate-400 dark:text-slate-500">Everything looks good? Hit send to launch your campaign.</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { icon: Users, color: 'primary', label: 'Audience', value: seg?.name || '—', sub: `${seg?.contactCount || 0} recipients` },
           { icon: Mail, color: 'blue', label: 'Content', value: campaignType === 'drip' ? `${dripSteps.length}-step sequence` : (mode === 'template' ? (tpl?.name || '—') : 'Custom Email'), sub: campaignType === 'drip' ? 'Drip sequence' : 'Single send' },
@@ -544,7 +544,7 @@ export default function CreateCampaign() {
 
   if (sent) {
     return (
-      <div className="p-8 mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <div className="p-4 md:p-8 mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
           <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center mx-auto mb-6"><Check size={36} className="text-emerald-500" /></div>
         </motion.div>
@@ -562,18 +562,18 @@ export default function CreateCampaign() {
   }
 
   return (
-    <motion.div className="p-8 mx-auto space-y-8" initial="hidden" animate="visible" variants={fadeIn}>
+    <motion.div className="p-4 md:p-8 mx-auto space-y-6 md:space-y-8" initial="hidden" animate="visible" variants={fadeIn}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <button onClick={() => step === 0 ? navigate('/campaigns') : setStep(step - 1)} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
           <ArrowLeft size={16} />{step === 0 ? 'Campaigns' : 'Back'}
         </button>
         <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Create Campaign</h1>
-        <div className="w-20" />
+        <div className="w-20 hidden sm:block" />
       </div>
 
       {/* Progress bar */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
         {STEP_LABELS.map((label, i) => {
           const isActive = i === step; const isComplete = i < step
           return (

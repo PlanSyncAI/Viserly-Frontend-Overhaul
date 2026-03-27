@@ -265,7 +265,7 @@ export default function GlobalSearch({ collapsed }) {
 
       {/* Dropdown */}
       {open && query.trim() && (
-        <div className="absolute left-0 top-full mt-1.5 w-[360px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute left-0 top-full mt-1.5 w-[calc(100vw-2rem)] sm:w-[360px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
           {totalCount === 0 ? (
             <div className="px-4 py-8 text-center">
               <Search size={20} className="mx-auto mb-2 text-slate-300" />
@@ -273,7 +273,7 @@ export default function GlobalSearch({ collapsed }) {
               <p className="text-xs text-slate-300 mt-1">Try searching for a contact, segment, or page</p>
             </div>
           ) : (
-            <div className="max-h-[420px] overflow-y-auto py-1">
+            <div className="max-h-[70vh] sm:max-h-[420px] overflow-y-auto py-1">
               {/* Render grouped by type */}
               {['page', 'contact', 'segmentation', 'template', 'campaign', 'deal'].map((type) => {
                 const items = flatResults.filter((r) => r.type === type)

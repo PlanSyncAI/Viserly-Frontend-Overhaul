@@ -148,7 +148,7 @@ export default function ImportData() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -179,14 +179,14 @@ export default function ImportData() {
       {/* ── How Data Imports Work ─────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
       >
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">How Data Imports Work</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
           Upload your CSV and Viserly will automatically upsert your data using smart matching logic.
         </p>
 
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
           {INFO_CARDS.map((card) => {
             const colors = infoCardColors[card.color]
             const Icon = card.icon
@@ -208,10 +208,10 @@ export default function ImportData() {
       {/* ── Upload Section ────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6"
       >
         {/* Import type toggle + step header */}
-        <div className="flex items-center gap-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-6">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Importing</span>
             <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">

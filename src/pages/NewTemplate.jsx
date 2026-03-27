@@ -155,7 +155,7 @@ export default function NewTemplate() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -185,7 +185,7 @@ export default function NewTemplate() {
         </p>
       </motion.div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
         {/* ── Left: Editor ─────────────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-5">
           {/* Template Name */}
@@ -267,7 +267,7 @@ export default function NewTemplate() {
           </motion.div>
 
           {/* PDF Attachment */}
-          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-5">
+          <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">PDF Attachment</h3>
               <span className="text-xs text-slate-400 dark:text-slate-500">Optional &middot; PDF only</span>
@@ -298,7 +298,7 @@ export default function NewTemplate() {
         </div>
 
         {/* ── Right: Merge Fields Sidebar ──────────────────────── */}
-        <motion.div variants={fadeUp} className="w-[300px] flex-shrink-0 space-y-4">
+        <motion.div variants={fadeUp} className="w-full md:w-[300px] flex-shrink-0 space-y-4">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 p-5 space-y-4">
             <div>
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">

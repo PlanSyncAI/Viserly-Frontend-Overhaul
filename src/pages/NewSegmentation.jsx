@@ -38,7 +38,7 @@ export default function NewSegmentation() {
 
   return (
     <motion.div
-      className="p-8  mx-auto space-y-6"
+      className="p-4 md:p-8  mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -71,12 +71,12 @@ export default function NewSegmentation() {
       </motion.div>
 
       {/* Segment Details */}
-      <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6">
+      <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6">
         <div className="mb-5">
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">Segment Details</h3>
           <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Name your audience and describe its business purpose.</p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={`block text-sm font-medium mb-1.5 ${errors.name ? 'text-red-500' : 'text-slate-700 dark:text-slate-200'}`}>
               <span className="text-red-400">*</span> Segment Name

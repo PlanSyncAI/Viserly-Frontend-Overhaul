@@ -4,13 +4,13 @@ export default function DataTable({ columns, data, emptyMessage = 'No data avail
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[600px]">
           <thead>
             <tr className="border-b border-slate-100 dark:border-slate-800">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="text-left text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-5 py-3.5"
+                  className="text-left text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 md:px-5 py-3.5"
                 >
                   {col.label}
                 </th>
@@ -36,7 +36,7 @@ export default function DataTable({ columns, data, emptyMessage = 'No data avail
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap"
+                      className="px-3 md:px-5 py-3.5 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap"
                     >
                       {col.render ? col.render(row[col.key], row) : row[col.key]}
                     </td>

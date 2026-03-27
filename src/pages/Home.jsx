@@ -407,7 +407,7 @@ export default function Home() {
   const contextLine = `${campaigns.length} active campaign${campaigns.length !== 1 ? 's' : ''} · ${stats.sent} emails sent · ${DUMMY_SEGMENTATIONS.length} segments`
 
   return (
-    <div className="p-8 mx-auto space-y-8">
+    <div className="p-4 md:p-8 mx-auto space-y-6 md:space-y-8">
 
       {/* ═══ Section 1: Premium Welcome Hero ═══ */}
       <motion.div
@@ -421,9 +421,9 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-400/10 dark:bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
         <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-purple-400/10 dark:bg-purple-500/8 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
 
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col md:flex-row items-start md:justify-between gap-4">
           <div>
-            <motion.h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white" variants={fadeUp} custom={0}>
+            <motion.h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white" variants={fadeUp} custom={0}>
               {greeting},{' '}
               <span className="bg-gradient-to-r from-primary-600 to-primary-400 dark:from-primary-400 dark:to-primary-300 bg-clip-text text-transparent">Cameron</span>
             </motion.h2>
@@ -435,7 +435,7 @@ export default function Home() {
             </motion.p>
           </div>
 
-          <motion.div className="flex items-center gap-2" variants={fadeUp} custom={2}>
+          <motion.div className="flex items-center gap-2 flex-wrap" variants={fadeUp} custom={2}>
             {[
               { icon: Send, value: stats.sent, label: 'emails sent', bg: 'bg-primary-50 dark:bg-primary-500/15', color: 'text-primary-500' },
               { icon: Eye, value: `${stats.openRate}%`, label: 'open rate', bg: 'bg-emerald-50 dark:bg-emerald-500/15', color: 'text-emerald-500' },
@@ -460,7 +460,7 @@ export default function Home() {
       <div>
         <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Quick Actions</h3>
         <motion.div
-          className="grid grid-cols-4 gap-4"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
@@ -530,7 +530,7 @@ export default function Home() {
 
       {/* ═══ KPI Stat Cards (Clickable) ═══ */}
       <motion.div
-        className="grid grid-cols-4 gap-5"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
@@ -614,19 +614,19 @@ export default function Home() {
 
       {/* ═══ Section 3: Email Performance Chart ═══ */}
       <motion.div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-sm"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6 shadow-sm"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
         variants={fadeUp}
         custom={1}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Email Performance</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Send volume and engagement over the last {chartRange} days</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Time range selector */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
               {[
@@ -675,7 +675,7 @@ export default function Home() {
           </button>
         </div>
         <motion.div
-          className="grid grid-cols-3 gap-5"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
@@ -729,7 +729,7 @@ export default function Home() {
 
       {/* ═══ Section 4b: Deal Pipeline Snapshot ═══ */}
       <motion.div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-sm"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6 shadow-sm"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
@@ -784,7 +784,7 @@ export default function Home() {
                   )
                 })}
               </div>
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="grid grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="text-center">
                   <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">${(pStats.totalValue / 1000).toFixed(0)}k</p>
                   <p className="text-[10px] text-slate-400 uppercase tracking-wider">Pipeline Value</p>
@@ -805,7 +805,7 @@ export default function Home() {
 
       {/* ═══ Section 5: Upcoming Scheduled Sends ═══ */}
       <motion.div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-sm"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6 shadow-sm"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
@@ -864,7 +864,7 @@ export default function Home() {
 
       {/* ═══ Section 6: Activity Timeline ═══ */}
       <motion.div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-6 shadow-sm"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4 md:p-6 shadow-sm"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}

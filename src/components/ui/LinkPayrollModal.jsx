@@ -48,14 +48,14 @@ export default function LinkPayrollModal({ open, onClose }) {
 
           {/* Modal */}
           <motion.div
-            className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[80vh]"
+            className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh] sm:max-h-[80vh]"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+            <div className="flex items-center justify-between px-4 sm:px-6 pt-5 sm:pt-6 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-primary-50 dark:bg-primary-500/15 flex items-center justify-center">
                   <Link2 size={18} className="text-primary-500" />
@@ -73,7 +73,7 @@ export default function LinkPayrollModal({ open, onClose }) {
             </div>
 
             {/* Body */}
-            <div className="px-6 pb-2 space-y-5 overflow-y-auto flex-1 min-h-0">
+            <div className="px-4 sm:px-6 pb-2 space-y-5 overflow-y-auto flex-1 min-h-0">
               {/* Select Account */}
               <div>
                 <label className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-2 block">
@@ -156,7 +156,7 @@ export default function LinkPayrollModal({ open, onClose }) {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800 mt-2">
+            <div className="flex items-center justify-end gap-3 px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-slate-800 mt-2">
               <button
                 onClick={handleClose}
                 className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"

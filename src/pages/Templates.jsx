@@ -161,7 +161,7 @@ export default function Templates() {
 
   return (
     <motion.div
-      className="p-8 mx-auto space-y-6"
+      className="p-4 md:p-8 mx-auto space-y-4 md:space-y-6"
       variants={staggerContainer}
       initial="hidden"
       animate="visible"
@@ -169,10 +169,10 @@ export default function Templates() {
       {/* ── Hero Header ──────────────────────────────────────────── */}
       <motion.div
         variants={fadeUp}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-8 py-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-50 via-white to-blue-50/40 dark:from-primary-500/5 dark:via-slate-900 dark:to-blue-500/5 border border-slate-200/60 dark:border-slate-800 px-4 sm:px-8 py-6 sm:py-8"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,91,255,0.06),transparent_50%)]" />
-        <div className="relative flex items-start justify-between">
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-500/20 flex items-center justify-center">
@@ -183,7 +183,7 @@ export default function Templates() {
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg">
               Create, manage, and customize email templates for participant outreach. Leverage merge fields for personalized communications.
             </p>
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4">
               {[
                 { label: 'Total', value: stats.total },
                 { label: 'Active', value: stats.active },
@@ -208,7 +208,7 @@ export default function Templates() {
       </motion.div>
 
       {/* ── KPI Cards ────────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="grid grid-cols-4 gap-4">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {kpiCards.map((card) => {
           const colors = kpiColors[card.color]
           const Icon = card.icon
@@ -235,7 +235,7 @@ export default function Templates() {
       </motion.div>
 
       {/* ── Tabs + Search ────────────────────────────────────────── */}
-      <motion.div variants={fadeUp} className="flex items-end gap-4">
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 sm:gap-4">
         <div className="flex items-center border-b border-slate-200 dark:border-slate-700">
           {[
             { key: 'all', label: 'All' },

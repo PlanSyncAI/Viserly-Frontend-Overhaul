@@ -21,6 +21,14 @@
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
+
+  /* Pin border-radius values to prevent build inconsistencies */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -104,4 +112,15 @@ body:where(.dark *) {
 * {
   scrollbar-width: thin;
   scrollbar-color: #CBD5E1 transparent;
+}
+
+/* ─── Mobile Kanban Snap Scroll ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .kanban-scroll {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .kanban-scroll > * {
+    scroll-snap-align: start;
+  }
 }

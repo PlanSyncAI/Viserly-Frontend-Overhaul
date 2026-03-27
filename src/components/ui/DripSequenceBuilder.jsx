@@ -290,7 +290,7 @@ function StepCard({ step, index, totalSteps, onUpdate, onRemove }) {
         {/* Card */}
         <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between px-4 md:px-5 py-3 border-b border-slate-100 dark:border-slate-800">
             <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
               Step {index + 1}
               {subtitle && <span className="text-slate-400 dark:text-slate-500 font-normal ml-1.5 text-xs">— {subtitle}</span>}
@@ -309,7 +309,7 @@ function StepCard({ step, index, totalSteps, onUpdate, onRemove }) {
           </div>
 
           {/* Body */}
-          <div className="p-5 space-y-5">
+          <div className="p-4 md:p-5 space-y-5">
             {/* Mode toggle */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 w-fit">
               <button type="button" onClick={() => onUpdate({ ...step, mode: 'template' })}
@@ -334,7 +334,7 @@ function StepCard({ step, index, totalSteps, onUpdate, onRemove }) {
             )}
 
             {/* Delay + Condition */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">{isFirst ? 'Timing' : 'Delay After Previous'}</label>
                 {isFirst ? (
