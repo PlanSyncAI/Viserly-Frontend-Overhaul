@@ -5,7 +5,6 @@ import {
   Users,
   PieChart,
   FileText,
-  Mail,
   Home,
   Database,
   Download,
@@ -13,7 +12,6 @@ import {
   History,
   User,
   GraduationCap,
-  ArrowRight,
   CornerDownLeft,
   Target,
 } from 'lucide-react'
@@ -22,6 +20,7 @@ import { DUMMY_SEGMENTATIONS } from '../../lib/segmentationData'
 import { DUMMY_TEMPLATES } from '../../lib/templateData'
 import { DUMMY_CAMPAIGNS } from '../../lib/campaignData'
 import { DUMMY_DEALS } from '../../lib/pipelineData'
+import { DUMMY_ACCOUNTS } from '../../lib/accountData'
 
 const PAGES = [
   { label: 'Home', path: '/', icon: Home },
@@ -142,6 +141,23 @@ export default function GlobalSearch({ collapsed }) {
         icon: Megaphone,
       }))
 
+    const matchedPlans = DUMMY_ACCOUNTS
+      .filter((a) =>
+        a.name.toLowerCase().includes(q) ||
+        (a.planName || '').toLowerCase().includes(q) ||
+        (a.planNumber || '').toLowerCase().includes(q) ||
+        (a.recordkeeper || '').toLowerCase().includes(q)
+      )
+      .slice(0, MAX_PER_SECTION)
+      .map((a) => ({
+        type: 'plan',
+        id: a.id,
+        label: a.planName || a.name,
+        sub: [a.recordkeeper, a.planNumber].filter(Boolean).join(' · ') || a.name,
+        path: `/plan-data/${a.slug}`,
+        icon: Database,
+      }))
+
     const matchedDeals = DUMMY_DEALS
       .filter((d) =>
         d.participantName.toLowerCase().includes(q) ||
@@ -169,7 +185,7 @@ export default function GlobalSearch({ collapsed }) {
         icon: p.icon,
       }))
 
-    return { matchedContacts, matchedSegments, matchedTemplates, matchedCampaigns, matchedDeals, matchedPages }
+    return { matchedContacts, matchedSegments, matchedTemplates, matchedCampaigns, matchedDeals, matchedPages, matchedPlans }
   }, [query, contacts, campaigns])
 
   const flatResults = useMemo(() => {
@@ -177,6 +193,7 @@ export default function GlobalSearch({ collapsed }) {
     return [
       ...results.matchedPages,
       ...results.matchedContacts,
+      ...results.matchedPlans,
       ...results.matchedSegments,
       ...results.matchedTemplates,
       ...results.matchedCampaigns,
@@ -214,6 +231,7 @@ export default function GlobalSearch({ collapsed }) {
   const sectionLabels = {
     page: 'Pages',
     contact: 'Contacts',
+    plan: 'Plans',
     segmentation: 'Segmentations',
     template: 'Templates',
     campaign: 'Campaigns',
@@ -222,6 +240,7 @@ export default function GlobalSearch({ collapsed }) {
   const sectionColors = {
     page: 'text-slate-500 bg-slate-100 dark:bg-slate-800',
     contact: 'text-blue-600 bg-blue-50',
+    plan: 'text-teal-600 bg-teal-50 dark:bg-teal-500/15',
     segmentation: 'text-purple-600 bg-purple-50',
     template: 'text-amber-600 bg-amber-50',
     campaign: 'text-emerald-600 bg-emerald-50',
@@ -275,7 +294,7 @@ export default function GlobalSearch({ collapsed }) {
           ) : (
             <div className="max-h-[70vh] sm:max-h-[420px] overflow-y-auto py-1">
               {/* Render grouped by type */}
-              {['page', 'contact', 'segmentation', 'template', 'campaign', 'deal'].map((type) => {
+              {['page', 'contact', 'plan', 'segmentation', 'template', 'campaign', 'deal'].map((type) => {
                 const items = flatResults.filter((r) => r.type === type)
                 if (items.length === 0) return null
                 return (
